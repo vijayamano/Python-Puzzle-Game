@@ -64,8 +64,14 @@ class LevelGenerator:
                         # this is the first shape so we just add it to the level
                         self.current_level.append(Square(0))
                         continue
-                    # pick a random shape in the current level
-                    random_shape = random.choice(self.current_level)
+                    # pick a random shape that has free vertices
+                    random_shape = random.choice(
+                        [
+                            shape
+                            for shape in self.current_level
+                            if len(shape.free_edges) > 0
+                        ]
+                    )
                     # generate a new random shape that will be attached to the existing random one
                     new_shape = Square(i)  # TODO: generate a random shape
                     # attach the new shape to the random shape
@@ -76,13 +82,17 @@ class LevelGenerator:
                 case "triangle":
                     if len(self.current_level) == 0:
                         # this is the first shape so we just add it to the level
-                        print("generating first triangle")
                         self.current_level.append(Triangle(0))
                         continue
                     # pick a random shape in the current level
-                    random_shape = random.choice(self.current_level)
+                    random_shape = random.choice(
+                        [
+                            shape
+                            for shape in self.current_level
+                            if len(shape.free_edges) > 0
+                        ]
+                    )
                     # generate a new random shape that will be attached to the existing random one
-                    print("generating triangle ", i)
                     new_shape = Triangle(i)  # TODO: generate a random shape
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)

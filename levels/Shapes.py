@@ -124,17 +124,17 @@ class Triangle(Shape):
     A Triangle class shape
     """
 
-    p1 = (400, 400)
+    p1 = (342, 300)
     """
     The first point of the triangle
     """
 
-    p2 = (458, 300)
+    p2 = (400, 200)
     """
     The second point of the triangle
     """
 
-    p3 = (342, 300)
+    p3 = (457, 300)
     """
     The third point of the triangle
     """
@@ -166,15 +166,15 @@ class Triangle(Shape):
         Helper function that checks if point is close to any of the other points
         """
         flag = False
-        if math.isclose(point[0], p1[0], abs_tol=1) and math.isclose(
+        if math.isclose(point[0], p1[0], abs_tol=5) and math.isclose(
             point[1], p1[1], abs_tol=1
         ):
             flag = True
-        if math.isclose(point[0], p2[0], abs_tol=1) and math.isclose(
+        if math.isclose(point[0], p2[0], abs_tol=5) and math.isclose(
             point[1], p2[1], abs_tol=1
         ):
             flag = True
-        if math.isclose(point[0], p3[0], abs_tol=1) and math.isclose(
+        if math.isclose(point[0], p3[0], abs_tol=5) and math.isclose(
             point[1], p3[1], abs_tol=1
         ):
             flag = True
@@ -189,30 +189,22 @@ class Triangle(Shape):
         # remove the edge from the free edges of that shape
         del shape.free_edges[that_edge]
         # if the shapes are the same then we can only attach to the outer edges
-        print("attaching to ", that_edge, " edge")
-        print("the shape is ", shape.index)
         if self.shape_type == shape.shape_type:
             # we can only attach to the outer edges of the that_edge
             match that_edge:
                 case 0:
                     # the left edge
-                    print("left")
                     self.p3 = shape.p1
                     self.p2 = shape.p2
                     temp = self._calculate_third_vertex(self.p3, self.p2)
-                    print(temp)
-                    print((shape.p1, shape.p2, shape.p3))
                     if self._check_if_close(shape.p1, shape.p2, shape.p3, temp):
-                        print("regenerating")
                         self.p1 = self._calculate_third_vertex(self.p3, self.p2, 1)
                     else:
-                        print("trying")
                         self.p1 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[1]
-                    print(self.p1, self.p2, self.p3)
 
                 case 1:
                     # the right edge
@@ -220,39 +212,28 @@ class Triangle(Shape):
                     self.p1 = shape.p3
                     self.p2 = shape.p2
                     temp = self._calculate_third_vertex(self.p1, self.p2)
-                    print(temp)
-                    print((shape.p1, shape.p2, shape.p3))
                     if self._check_if_close(shape.p1, shape.p2, shape.p3, temp):
-                        print("regenerating")
                         self.p3 = self._calculate_third_vertex(self.p1, self.p2, 1)
                     else:
-                        print("trying")
                         self.p3 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[0]
-                    print(self.p1, self.p2, self.p3)
 
                 case 2:
                     # the bottom edge
-                    print("bottom")
                     self.p1 = shape.p3
                     self.p3 = shape.p1
                     temp = self._calculate_third_vertex(self.p1, self.p3)
-                    print(temp)
-                    print((shape.p1, shape.p2, shape.p3))
                     if self._check_if_close(shape.p1, shape.p2, shape.p3, temp):
-                        print("regenerating")
                         self.p2 = self._calculate_third_vertex(self.p1, self.p3, 1)
                     else:
-                        print("trying")
                         self.p2 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[2]
-                    print(self.p1, self.p2, self.p3)
 
     def _calculate_third_vertex(self, point1, point2, type=0):
         x1, y1 = point1
