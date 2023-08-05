@@ -24,11 +24,6 @@ class Shape:
     A Dictionary consisting of all the edges of the shape. The key is the index of the edge and the value is the edge itself
     """
 
-    base_shape = None
-    """
-    The base pygame shape object that is used to draw the shape
-    """
-
     index = None
     """
     A random index applied to the shape in order to make it easier to indentify
@@ -44,30 +39,37 @@ class Square(Shape):
 
     """
 
+    p1 = (300, 300)
+
+    p2 = (400, 300)
+
+    p3 = (400, 400)
+
+    p4 = (300, 400)
+
     def __init__(self, index) -> None:
         super().__init__(index)
         self.shape_type = "square"
         self.all_edges = {0: None, 1: None, 2: None, 3: None}
         self.free_edges = self.all_edges
-        self.base_shape = pygame.Rect(400, 400, 100, 100)
 
     def _setAllEdges(self):
         self.all_edges = {
             0: (  # top edge
-                (self.base_shape.left, self.base_shape.top),
-                (self.base_shape.right, self.base_shape.top),
+                self.p1,
+                self.p2,
             ),
             1: (  # right edge
-                (self.base_shape.right, self.base_shape.top),
-                (self.base_shape.right, self.base_shape.bottom),
+                self.p2,
+                self.p3,
             ),
             2: (  # bottom edge
-                (self.base_shape.right, self.base_shape.bottom),
-                (self.base_shape.left, self.base_shape.bottom),
+                self.p3,
+                self.p4,
             ),
             3: (  # left edge
-                (self.base_shape.left, self.base_shape.bottom),
-                (self.base_shape.left, self.base_shape.top),
+                self.p4,
+                self.p1,
             ),
         }
 
@@ -84,39 +86,43 @@ class Square(Shape):
             # we can only attach to the outer edges of the that_edge
             match that_edge:
                 case 3:  # left edge
-                    self.base_shape.right = shape.base_shape.left
-                    self.base_shape.top = shape.base_shape.top
-                    self.base_shape.bottom = shape.base_shape.bottom
+                    self.p2, self.p3 = shape.p1, shape.p4
+                    self.p1 = self.p2[0] - 100, self.p2[1]
+                    self.p4 = self.p3[0] - 100, self.p3[1]
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[1]
                 case 1:  # right edge
-                    self.base_shape.left = shape.base_shape.right
-                    self.base_shape.top = shape.base_shape.top
-                    self.base_shape.bottom = shape.base_shape.bottom
+                    self.p1, self.p4 = shape.p2, shape.p3
+                    self.p2 = self.p1[0] + 100, self.p1[1]
+                    self.p3 = self.p4[0] + 100, self.p4[1]
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[3]
-
                 case 0:  # top edge
-                    self.base_shape.left = shape.base_shape.left
-                    self.base_shape.right = shape.base_shape.right
-                    self.base_shape.bottom = shape.base_shape.top
+                    self.p4, self.p3 = shape.p1, shape.p2
+                    self.p1 = self.p4[0], self.p4[1] - 100
+                    self.p2 = self.p3[0], self.p3[1] - 100
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[2]
 
                 case 2:  # bottom edge
-                    self.base_shape.left = shape.base_shape.left
-                    self.base_shape.right = shape.base_shape.right
-                    self.base_shape.top = shape.base_shape.bottom
+                    self.p1, self.p2 = shape.p4, shape.p3
+                    self.p3 = self.p2[0], self.p2[1] + 100
+                    self.p4 = self.p1[0], self.p1[1] + 100
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[0]
+        else:
+            # we have a different kind of shape
+            if shape.shape_type == "triangle":
+                # we have a triangle
+                pass
 
 
 class Triangle(Shape):
@@ -124,17 +130,17 @@ class Triangle(Shape):
     A Triangle class shape
     """
 
-    p1 = (342, 300)
+    p1 = (300, 300)
     """
     The first point of the triangle
     """
 
-    p2 = (400, 200)
+    p2 = (350, 213)
     """
     The second point of the triangle
     """
 
-    p3 = (457, 300)
+    p3 = (400, 300)
     """
     The third point of the triangle
     """
@@ -208,7 +214,6 @@ class Triangle(Shape):
 
                 case 1:
                     # the right edge
-                    print("right")
                     self.p1 = shape.p3
                     self.p2 = shape.p2
                     temp = self._calculate_third_vertex(self.p1, self.p2)
@@ -234,6 +239,9 @@ class Triangle(Shape):
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[2]
+        else:
+            # we have different kind of shapes
+            pass
 
     def _calculate_third_vertex(self, point1, point2, type=0):
         x1, y1 = point1

@@ -71,10 +71,15 @@ class PuzzleGame:
                     ]
                     for a in range(len(temp.current_level)):
                         if temp.current_level[a].shape_type == "square":
-                            pygame.draw.rect(
+                            pygame.draw.polygon(
                                 self.screen,
                                 colors[(a + 7) % 7],
-                                temp.current_level[a].base_shape,
+                                (
+                                    temp.current_level[a].p1,
+                                    temp.current_level[a].p2,
+                                    temp.current_level[a].p3,
+                                    temp.current_level[a].p4,
+                                ),
                             )
                         elif temp.current_level[a].shape_type == "triangle":
                             pygame.draw.polygon(
@@ -86,6 +91,10 @@ class PuzzleGame:
                                     temp.current_level[a].p3,
                                 ),
                             )
+                        print("Shape Type: ", temp.current_level[a].shape_type)
+                        print("index: ", temp.current_level[a].index)
+                        print("free_edges: ", temp.current_level[a].all_edges)
+                        print("all_edges:", temp.current_level[a].free_edges)
                     # add the surface to the center of the display screen
                     self.screen.blit(
                         self.screen,

@@ -57,7 +57,7 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
-            shape = "triangle"  # TODO: remove this line
+            shape = random.choice(["square", "triangle"])  # TODO: remove this line
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
