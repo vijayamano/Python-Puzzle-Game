@@ -73,10 +73,40 @@ class Square(Shape):
             ),
         }
 
+    def square_vertex(self, edge, distance, type=0):
+        # Calculate the length of the edge
+        edge_length = math.sqrt(
+            (edge[0][0] - edge[1][0]) ** 2 + (edge[0][1] - edge[1][1]) ** 2
+        )
+
+        # Calculate the unit vector along the edge
+        unit_vector = (
+            (edge[1][0] - edge[0][0]) / edge_length,
+            (edge[1][1] - edge[0][1]) / edge_length,
+        )
+
+        # Calculate the unit vector perpendicular to the edge
+        perpendicular_unit_vector = (-unit_vector[1], unit_vector[0])
+
+        # Calculate the coordinates of the new vertex
+        print(perpendicular_unit_vector)
+        if type:
+            new_vertex = (
+                edge[1][0] + distance * perpendicular_unit_vector[0],
+                edge[1][1] + distance * perpendicular_unit_vector[1],
+            )
+        else:
+            new_vertex = (
+                edge[0][0] + distance * perpendicular_unit_vector[0],
+                edge[0][1] + distance * perpendicular_unit_vector[1],
+            )
+        return new_vertex
+
     def attach(self, shape: Shape):
         """
         Will reposisition the shape to the new shape on any random edge
         """
+
         this_edge = random.choice(self.free_edges)
         that_edge = random.choice(list(shape.free_edges.keys()))
         # remove the edge from the free edges of that shape
@@ -87,42 +117,66 @@ class Square(Shape):
             match that_edge:
                 case 3:  # left edge
                     self.p2, self.p3 = shape.p1, shape.p4
-                    self.p1 = self.p2[0] - 100, self.p2[1]
-                    self.p4 = self.p3[0] - 100, self.p3[1]
+                    self.p1 = self.square_vertex((self.p2, self.p3), 100)
+                    self.p4 = self.square_vertex((self.p2, self.p3), 100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[1]
                 case 1:  # right edge
                     self.p1, self.p4 = shape.p2, shape.p3
-                    self.p2 = self.p1[0] + 100, self.p1[1]
-                    self.p3 = self.p4[0] + 100, self.p4[1]
+                    self.p2 = self.square_vertex((self.p1, self.p4), -100)
+                    self.p3 = self.square_vertex((self.p1, self.p4), -100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[3]
                 case 0:  # top edge
                     self.p4, self.p3 = shape.p1, shape.p2
-                    self.p1 = self.p4[0], self.p4[1] - 100
-                    self.p2 = self.p3[0], self.p3[1] - 100
+                    self.p1 = self.square_vertex((self.p4, self.p3), -100)
+                    self.p2 = self.square_vertex((self.p4, self.p3), -100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[2]
-
                 case 2:  # bottom edge
                     self.p1, self.p2 = shape.p4, shape.p3
-                    self.p3 = self.p2[0], self.p2[1] + 100
-                    self.p4 = self.p1[0], self.p1[1] + 100
+                    self.p3 = self.square_vertex((self.p1, self.p2), 100, 1)
+                    self.p4 = self.square_vertex((self.p1, self.p2), 100)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = self.all_edges
                     del self.free_edges[0]
         else:
             # we have a different kind of shape
+            pass
             if shape.shape_type == "triangle":
                 # we have a triangle
-                pass
+                match that_edge:
+                    case 0:  # left edge
+                        self.p2, self.p3 = shape.p2, shape.p1
+                        self.p1 = self.square_vertex((self.p2, self.p3), 100)
+                        self.p4 = self.square_vertex((self.p2, self.p3), 100, 1)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = self.all_edges
+                        del self.free_edges[1]
+                    case 1:  # right edge
+                        self.p1, self.p4 = shape.p2, shape.p3
+                        self.p2 = self.square_vertex((self.p1, self.p4), -100)
+                        self.p3 = self.square_vertex((self.p1, self.p4), -100, 1)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = self.all_edges
+                        del self.free_edges[3]
+                    case 2:  # bottom edge
+                        self.p1, self.p2 = shape.p1, shape.p3
+                        self.p3 = self.square_vertex((self.p1, self.p2), 100, 1)
+                        self.p4 = self.square_vertex((self.p1, self.p2), 100)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = self.all_edges
+                        del self.free_edges[0]
 
 
 class Triangle(Shape):
