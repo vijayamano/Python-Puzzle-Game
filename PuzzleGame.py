@@ -119,6 +119,13 @@ class PuzzleGame:
                                         temp.current_level[a].p3,
                                     ),
                                 )
+                            elif temp.current_level[a].shape_type == "circle":
+                                pygame.draw.circle(
+                                    self.screen,
+                                    colors[(a + 7) % 7],
+                                    temp.current_level[a].center,
+                                    temp.current_level[a].radius,
+                                )
                             print("Shape Type: ", temp.current_level[a].shape_type)
                             print("index: ", temp.current_level[a].index)
                             print("free_edges: ", temp.current_level[a].free_edges)

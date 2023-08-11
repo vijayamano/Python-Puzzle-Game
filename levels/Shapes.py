@@ -406,3 +406,40 @@ class Triangle(Shape):
         y3 = y1 + distance * math.sin(angle_third_vertex)
 
         return math.ceil(x3), math.ceil(y3)
+
+
+class Circle(Shape):
+    """
+    A Circle Class Shape
+    """
+
+    center = (300, 300)
+
+    radius = 50
+
+    def __init__(self, index):
+        super().__init__(index)
+        self.shape_type = "circle"
+
+    def _find_midpoint(self, p1, p2):
+        """
+        finds the midpoint of two points
+        """
+        x1, y1 = p1
+        x2, y2 = p2
+        return (x1 + x2) / 2, (y1 + y2) / 2
+
+    def attach(self, shape: Shape):
+        """
+        Will reposisition the shape to the new shape on any random edge.
+        The circle can only attach its center to the edge of any other shape.
+        Based on difficulty it will be decidede whether the attached edge should be
+        removed or not.
+        """
+        that_edge = random.choice(list(shape.free_edges.keys()))
+        # find midpoint of that edge
+        self.center = self._find_midpoint(
+            shape.free_edges[that_edge][0], shape.free_edges[that_edge][1]
+        )
+        # remove the edge from the free edges of that shape
+        del shape.free_edges[that_edge]

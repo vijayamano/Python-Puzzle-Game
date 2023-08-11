@@ -2,7 +2,7 @@ from calendar import c
 import random
 from levels import EASY_DEPTH, DEFAULT_SIZE, DEFAULT_SURFACE_SIZE
 from pygame import Surface
-from levels.Shapes import Square, Triangle
+from levels.Shapes import Square, Triangle, Circle
 
 SHAPES = ["square", "rectangle"]
 
@@ -57,7 +57,7 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
-            shape = random.choice(["square", "triangle"])  # TODO: remove this line
+            shape = random.choice(["square", "triangle", "circle"])
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
@@ -69,11 +69,12 @@ class LevelGenerator:
                         [
                             shape
                             for shape in self.current_level
-                            if len(shape.free_edges) > 0
+                            if shape.shape_type != "circle"
+                            and len(shape.free_edges) > 0
                         ]
                     )
                     # generate a new random shape that will be attached to the existing random one
-                    new_shape = Square(i)  # TODO: generate a random shape
+                    new_shape = Square(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
                     # add the new shape to the current level
@@ -89,11 +90,33 @@ class LevelGenerator:
                         [
                             shape
                             for shape in self.current_level
-                            if len(shape.free_edges) > 0
+                            if shape.shape_type != "circle"
+                            and len(shape.free_edges) > 0
                         ]
                     )
                     # generate a new random shape that will be attached to the existing random one
-                    new_shape = Triangle(i)  # TODO: generate a random shape
+                    new_shape = Triangle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "circle":
+                    if len(self.current_level) == 0:
+                        # since we cannot add a circle as the first shape we add a square instead
+                        self.current_level.append(Square(0))
+                        continue
+                    # pick a random shape in the current level that is also not a circle
+                    random_shape = random.choice(
+                        [
+                            shape
+                            for shape in self.current_level
+                            if shape.shape_type != "circle"
+                            and len(shape.free_edges) > 0
+                        ]
+                    )
+                    # generate a new random shape that will be attached to the existing random one
+                    new_shape = Circle(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
                     # add the new shape to the current level
