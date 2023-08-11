@@ -55,6 +55,9 @@ class PuzzleGame:
                 # clear the screen
                 self.screen.fill((255, 255, 255))
                 temp.clear_level()
+                print("*" * 20)
+                print("Generating level")
+                print("*" * 20)
                 if event.key == pygame.K_a:
                     pygame.display.update()
                     temp.generate_level()
@@ -93,8 +96,8 @@ class PuzzleGame:
                             )
                         print("Shape Type: ", temp.current_level[a].shape_type)
                         print("index: ", temp.current_level[a].index)
-                        print("free_edges: ", temp.current_level[a].all_edges)
-                        print("all_edges:", temp.current_level[a].free_edges)
+                        print("free_edges: ", temp.current_level[a].free_edges)
+                        print("all_edges:", temp.current_level[a].all_edges)
                     # add the surface to the center of the display screen
                     self.screen.blit(
                         self.screen,

@@ -1,6 +1,7 @@
 import pygame
 import random
 import math
+import copy
 
 
 class Shape:
@@ -50,8 +51,8 @@ class Square(Shape):
     def __init__(self, index) -> None:
         super().__init__(index)
         self.shape_type = "square"
-        self.all_edges = {0: None, 1: None, 2: None, 3: None}
-        self.free_edges = self.all_edges
+        self._setAllEdges()
+        self.free_edges = copy.deepcopy(self.all_edges)
 
     def _setAllEdges(self):
         self.all_edges = {
@@ -89,7 +90,6 @@ class Square(Shape):
         perpendicular_unit_vector = (-unit_vector[1], unit_vector[0])
 
         # Calculate the coordinates of the new vertex
-        print(perpendicular_unit_vector)
         if type:
             new_vertex = (
                 edge[1][0] + distance * perpendicular_unit_vector[0],
@@ -102,12 +102,31 @@ class Square(Shape):
             )
         return new_vertex
 
+    def _check_if_overlap(self, p1, p2, p3):
+        """
+        Checks if the edge formed by p1, p2 will form a fill square that overlaps  a triangle underneath it
+        This is done by calculating the angle between edge formed by p1,p2 nad p2,p3. If the angle is less than
+        90 degrees then the shape will overlap
+        """
+        print("Checking for overlap")
+        print(p1, p2, p3)
+        # calculate the angle between the two edges
+        angle = math.atan2(p3[1] - p2[1], p3[0] - p2[0]) - math.atan2(
+            p1[1] - p2[1], p1[0] - p2[0]
+        )
+        angle = math.degrees(angle)
+        print(abs(angle))
+        if abs(angle) < 90:
+            return True
+        else:
+            return False
+
     def attach(self, shape: Shape):
         """
         Will reposisition the shape to the new shape on any random edge
         """
 
-        this_edge = random.choice(self.free_edges)
+        this_edge = random.choice(list(self.free_edges.keys()))
         that_edge = random.choice(list(shape.free_edges.keys()))
         # remove the edge from the free edges of that shape
         del shape.free_edges[that_edge]
@@ -121,7 +140,7 @@ class Square(Shape):
                     self.p4 = self.square_vertex((self.p2, self.p3), 100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[1]
                 case 1:  # right edge
                     self.p1, self.p4 = shape.p2, shape.p3
@@ -129,7 +148,7 @@ class Square(Shape):
                     self.p3 = self.square_vertex((self.p1, self.p4), -100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[3]
                 case 0:  # top edge
                     self.p4, self.p3 = shape.p1, shape.p2
@@ -137,7 +156,7 @@ class Square(Shape):
                     self.p2 = self.square_vertex((self.p4, self.p3), -100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[2]
                 case 2:  # bottom edge
                     self.p1, self.p2 = shape.p4, shape.p3
@@ -145,7 +164,7 @@ class Square(Shape):
                     self.p4 = self.square_vertex((self.p1, self.p2), 100)
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[0]
         else:
             # we have a different kind of shape
@@ -154,28 +173,64 @@ class Square(Shape):
                 # we have a triangle
                 match that_edge:
                     case 0:  # left edge
+                        print("left edge")
                         self.p2, self.p3 = shape.p2, shape.p1
-                        self.p1 = self.square_vertex((self.p2, self.p3), 100)
-                        self.p4 = self.square_vertex((self.p2, self.p3), 100, 1)
+                        # check if the square will overlap with the triangle
+                        if self._check_if_overlap(
+                            shape.p3,
+                            shape.p2,
+                            self.square_vertex((self.p2, self.p3), 100),
+                        ):
+                            print("collision detetced left")
+                            self.p1 = self.square_vertex((self.p2, self.p3), -100)
+                            self.p4 = self.square_vertex((self.p2, self.p3), -100, 1)
+                        else:
+                            print("No collision detetced left")
+                            self.p1 = self.square_vertex((self.p2, self.p3), 100)
+                            self.p4 = self.square_vertex((self.p2, self.p3), 100, 1)
                         # update the all edges and free edges
                         self._setAllEdges()
-                        self.free_edges = self.all_edges
+                        self.free_edges = copy.deepcopy(self.all_edges)
                         del self.free_edges[1]
                     case 1:  # right edge
+                        print("right edge")
                         self.p1, self.p4 = shape.p2, shape.p3
-                        self.p2 = self.square_vertex((self.p1, self.p4), -100)
-                        self.p3 = self.square_vertex((self.p1, self.p4), -100, 1)
+                        # check if the square will overlap with the triangle
+                        if self._check_if_overlap(
+                            shape.p1,
+                            shape.p2,
+                            self.square_vertex((self.p1, self.p4), -100),
+                        ):
+                            print("collision detetced right")
+                            self.p2 = self.square_vertex((self.p1, self.p4), 100)
+                            self.p3 = self.square_vertex((self.p1, self.p4), 100, 1)
+                        else:
+                            print("No collision detetced right")
+                            self.p2 = self.square_vertex((self.p1, self.p4), -100)
+                            self.p3 = self.square_vertex((self.p1, self.p4), -100, 1)
                         # update the all edges and free edges
                         self._setAllEdges()
-                        self.free_edges = self.all_edges
+                        self.free_edges = copy.deepcopy(self.all_edges)
                         del self.free_edges[3]
                     case 2:  # bottom edge
+                        print("bottom edge")
                         self.p1, self.p2 = shape.p1, shape.p3
-                        self.p3 = self.square_vertex((self.p1, self.p2), 100, 1)
-                        self.p4 = self.square_vertex((self.p1, self.p2), 100)
+                        # check if the square will overlap with the triangle
+                        if self._check_if_overlap(
+                            shape.p2,
+                            shape.p1,
+                            self.square_vertex((self.p1, self.p2), -100),
+                        ):
+                            print("collision detetced bottom")
+                            self.p3 = self.square_vertex((self.p1, self.p2), 100, 1)
+                            self.p4 = self.square_vertex((self.p1, self.p2), 100)
+                        else:
+                            print("No collision detetced bottom")
+                            self.p3 = self.square_vertex((self.p1, self.p2), -100, 1)
+                            self.p4 = self.square_vertex((self.p1, self.p2), -100)
                         # update the all edges and free edges
                         self._setAllEdges()
-                        self.free_edges = self.all_edges
+                        self.free_edges = copy.deepcopy(self.all_edges)
                         del self.free_edges[0]
 
 
@@ -202,8 +257,8 @@ class Triangle(Shape):
     def __init__(self, index) -> None:
         super().__init__(index)
         self.shape_type = "triangle"
-        self.all_edges = {0: None, 1: None, 2: None}
-        self.free_edges = self.all_edges
+        self._setAllEdges()
+        self.free_edges = copy.deepcopy(self.all_edges)
 
     def _setAllEdges(self):
         self.all_edges = {
@@ -244,12 +299,12 @@ class Triangle(Shape):
         """
         Will reposisition the shape to the new shape on any random edge
         """
-        this_edge = random.choice(self.free_edges)
+        this_edge = random.choice(list(self.free_edges.keys()))
         that_edge = random.choice(list(shape.free_edges.keys()))
-        # remove the edge from the free edges of that shape
-        del shape.free_edges[that_edge]
         # if the shapes are the same then we can only attach to the outer edges
         if self.shape_type == shape.shape_type:
+            # remove the edge from the free edges of that shape
+            del shape.free_edges[that_edge]
             # we can only attach to the outer edges of the that_edge
             match that_edge:
                 case 0:
@@ -263,7 +318,7 @@ class Triangle(Shape):
                         self.p1 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[1]
 
                 case 1:
@@ -277,7 +332,7 @@ class Triangle(Shape):
                         self.p3 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[0]
 
                 case 2:
@@ -291,11 +346,44 @@ class Triangle(Shape):
                         self.p2 = temp
                     # update the all edges and free edges
                     self._setAllEdges()
-                    self.free_edges = self.all_edges
+                    self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[2]
         else:
             # we have different kind of shapes
-            pass
+            if shape.shape_type == "square":
+                # we have a square
+                match this_edge:
+                    case 0:
+                        # the left edge
+                        self.p1 = shape.free_edges[that_edge][0]
+                        self.p2 = shape.free_edges[that_edge][1]
+                        self.p3 = self._calculate_third_vertex(self.p1, self.p2)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = copy.deepcopy(self.all_edges)
+                        del self.free_edges[0]
+
+                    case 1:
+                        # the right edge
+                        self.p2 = shape.free_edges[that_edge][0]
+                        self.p3 = shape.free_edges[that_edge][1]
+                        self.p1 = self._calculate_third_vertex(self.p2, self.p3)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = copy.deepcopy(self.all_edges)
+                        del self.free_edges[1]
+
+                    case 2:
+                        # the bottom edge
+                        self.p1 = shape.free_edges[that_edge][0]
+                        self.p3 = shape.free_edges[that_edge][1]
+                        self.p2 = self._calculate_third_vertex(self.p1, self.p3)
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = copy.deepcopy(self.all_edges)
+                        del self.free_edges[2]
+                # remove the edge from the free edges of that shape
+                del shape.free_edges[that_edge]
 
     def _calculate_third_vertex(self, point1, point2, type=0):
         x1, y1 = point1
