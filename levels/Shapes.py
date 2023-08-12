@@ -30,6 +30,12 @@ class Shape:
     A random index applied to the shape in order to make it easier to indentify
     """
 
+    circles_attached = 0
+    """
+    Maintains a count of the number of circles that are attached to the shape. This is required cause a shape
+    has a certain number of maximum circles it can accomadate before being covered completely
+    """
+
     def __init__(self, index) -> None:
         self.index = index
 
@@ -443,3 +449,4 @@ class Circle(Shape):
         )
         # remove the edge from the free edges of that shape
         del shape.free_edges[that_edge]
+        shape.circles_attached += 1
