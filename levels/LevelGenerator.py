@@ -2,7 +2,7 @@ from calendar import c
 import random
 from levels import EASY_DEPTH, DEFAULT_SIZE, DEFAULT_SURFACE_SIZE
 from pygame import Surface
-from levels.Shapes import Square, Triangle, Circle
+from levels.Shapes import Rhombus, Square, Triangle, Circle
 
 SHAPES = ["square", "rectangle"]
 
@@ -71,7 +71,7 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
-            shape = random.choice(["square", "triangle", "circle"])
+            shape = random.choice(["rhombus", "triangle"])
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
@@ -110,6 +110,20 @@ class LevelGenerator:
                     random_shape = self._choose_random_shape()
                     # generate a new random shape that will be attached to the existing random one
                     new_shape = Circle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "rhombus":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Rhombus(0))
+                        continue
+                    # pick a random shape in the current level
+                    random_shape = self._choose_random_shape()
+                    # generate a new random shape that will be attached to the existing random one
+                    new_shape = Rhombus(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
                     # add the new shape to the current level

@@ -108,6 +108,7 @@ class PuzzleGame:
                                         temp.current_level[a].p3,
                                         temp.current_level[a].p4,
                                     ),
+                                    width=2,
                                 )
                             elif temp.current_level[a].shape_type == "triangle":
                                 pygame.draw.polygon(
@@ -118,6 +119,7 @@ class PuzzleGame:
                                         temp.current_level[a].p2,
                                         temp.current_level[a].p3,
                                     ),
+                                    width=2,
                                 )
                             elif temp.current_level[a].shape_type == "circle":
                                 pygame.draw.circle(
@@ -125,6 +127,19 @@ class PuzzleGame:
                                     colors[(a + 7) % 7],
                                     temp.current_level[a].center,
                                     temp.current_level[a].radius,
+                                    width=2,
+                                )
+                            elif temp.current_level[a].shape_type == "rhombus":
+                                pygame.draw.polygon(
+                                    self.screen,
+                                    colors[(a + 7) % 7],
+                                    (
+                                        temp.current_level[a].p1,
+                                        temp.current_level[a].p2,
+                                        temp.current_level[a].p3,
+                                        temp.current_level[a].p4,
+                                    ),
+                                    width=2,
                                 )
                             print("Shape Type: ", temp.current_level[a].shape_type)
                             print("index: ", temp.current_level[a].index)
