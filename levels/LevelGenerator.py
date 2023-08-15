@@ -1,5 +1,15 @@
 import random
-from levels import EASY_DEPTH, DEFAULT_SURFACE_SIZE, SHAPES, COLORS
+from levels import (
+    EASY_DEPTH,
+    DEFAULT_SURFACE_SIZE,
+    EASY_FALL_OFF,
+    HARD_FALL_OFF,
+    HARD_DEPTH,
+    MEDIUM_DEPTH,
+    MEDIUM_FALL_OFF,
+    SHAPES,
+    COLORS,
+)
 from pygame import Surface
 from levels.Shapes import Rhombus, Square, Triangle, Circle
 
@@ -64,7 +74,7 @@ class LevelGenerator:
         except IndexError:
             return None
 
-    def _generate_colors(self):
+    def _generate_colors(self, decrease):
         """
         This is a helper function to be run after a level has been generated.
         The function will assign a color to each shape in the level.
@@ -88,7 +98,7 @@ class LevelGenerator:
                     self.current_level.index(shape) - 1
                 ].color
             # decrease the probability of assigning the same color
-            prob -= 5
+            prob += decrease
 
     def generate_easy_level(self):
         """
@@ -97,6 +107,10 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
+            random_shape = self._choose_random_shape()
+            if random_shape is None and i != 0:
+                print("impossible to generate level")
+                return
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
@@ -104,11 +118,6 @@ class LevelGenerator:
                         self.current_level.append(Square(0))
                         continue
                     # pick a random shape that has free vertices
-                    random_shape = self._choose_random_shape()
-                    if random_shape is None:
-                        print("impossible to generate level")
-                        return
-                    # generate a new random shape that will be attached to the existing random one
                     new_shape = Square(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
@@ -121,8 +130,6 @@ class LevelGenerator:
                         self.current_level.append(Triangle(0))
                         continue
                     # pick a random shape in the current level
-                    random_shape = self._choose_random_shape()
-                    # generate a new random shape that will be attached to the existing random one
                     new_shape = Triangle(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
@@ -134,9 +141,6 @@ class LevelGenerator:
                         # since we cannot add a circle as the first shape we add a square instead
                         self.current_level.append(Square(0))
                         continue
-                    # pick a random shape in the current level that is also not a circle
-                    random_shape = self._choose_random_shape()
-                    # generate a new random shape that will be attached to the existing random one
                     new_shape = Circle(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
@@ -148,14 +152,130 @@ class LevelGenerator:
                         # this is the first shape so we just add it to the level
                         self.current_level.append(Rhombus(0))
                         continue
-                    # pick a random shape in the current level
-                    random_shape = self._choose_random_shape()
-                    # generate a new random shape that will be attached to the existing random one
                     new_shape = Rhombus(i)
                     # attach the new shape to the random shape
                     new_shape.attach(random_shape)
                     # add the new shape to the current level
                     self.current_level.append(new_shape)
-
         # assign colors to the shapes
-        self._generate_colors()
+        self._generate_colors(EASY_FALL_OFF)
+
+    def generate_medium_level(self):
+        """
+        Generates a level of medium difrficulty
+        """
+        for i in range(MEDIUM_DEPTH):
+            # select a random shape
+            shape = random.choice(SHAPES)
+            random_shape = self._choose_random_shape()
+            if random_shape is None and i != 0:
+                print("impossible to generate level")
+                return
+            match shape:
+                case "square":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Square(0))
+                        continue
+                    # pick a random shape that has free vertices
+                    new_shape = Square(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "triangle":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Triangle(0))
+                        continue
+                    # pick a random shape in the current level
+                    new_shape = Triangle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "circle":
+                    if len(self.current_level) == 0:
+                        # since we cannot add a circle as the first shape we add a square instead
+                        self.current_level.append(Square(0))
+                        continue
+                    new_shape = Circle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "rhombus":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Rhombus(0))
+                        continue
+                    new_shape = Rhombus(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+        # assign colors to the shapes
+        self._generate_colors(MEDIUM_FALL_OFF)
+
+    def generate_hard_level(self):
+        """
+        Generates a level of hard difficulty
+        """
+        for i in range(HARD_DEPTH):
+            # select a random shape
+            shape = random.choice(SHAPES)
+            random_shape = self._choose_random_shape()
+            if random_shape is None and i != 0:
+                print("impossible to generate level")
+                return
+            match shape:
+                case "square":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Square(0))
+                        continue
+                    # pick a random shape that has free vertices
+                    new_shape = Square(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "triangle":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Triangle(0))
+                        continue
+                    # pick a random shape in the current level
+                    new_shape = Triangle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "circle":
+                    if len(self.current_level) == 0:
+                        # since we cannot add a circle as the first shape we add a square instead
+                        self.current_level.append(Square(0))
+                        continue
+                    new_shape = Circle(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+
+                case "rhombus":
+                    if len(self.current_level) == 0:
+                        # this is the first shape so we just add it to the level
+                        self.current_level.append(Rhombus(0))
+                        continue
+                    new_shape = Rhombus(i)
+                    # attach the new shape to the random shape
+                    new_shape.attach(random_shape)
+                    # add the new shape to the current level
+                    self.current_level.append(new_shape)
+        # assign colors to the shapes
+        self._generate_colors(HARD_FALL_OFF)

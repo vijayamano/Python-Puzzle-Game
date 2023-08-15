@@ -66,6 +66,56 @@ class PuzzleGame:
                     self.running = False
                     break
 
+    def temporary_display(self, temp, canvas):
+        pygame.display.update()
+        # the rainbow colors in order inside a list of rgb values
+        for a in range(len(temp.current_level)):
+            if temp.current_level[a].shape_type == "square":
+                pygame.draw.polygon(
+                    canvas,
+                    temp.current_level[a].color,
+                    (
+                        temp.current_level[a].p1,
+                        temp.current_level[a].p2,
+                        temp.current_level[a].p3,
+                        temp.current_level[a].p4,
+                    ),
+                )
+            elif temp.current_level[a].shape_type == "triangle":
+                pygame.draw.polygon(
+                    canvas,
+                    temp.current_level[a].color,
+                    (
+                        temp.current_level[a].p1,
+                        temp.current_level[a].p2,
+                        temp.current_level[a].p3,
+                    ),
+                )
+            elif temp.current_level[a].shape_type == "circle":
+                pygame.draw.circle(
+                    canvas,
+                    temp.current_level[a].color,
+                    temp.current_level[a].center,
+                    temp.current_level[a].radius,
+                )
+            elif temp.current_level[a].shape_type == "rhombus":
+                pygame.draw.polygon(
+                    canvas,
+                    temp.current_level[a].color,
+                    (
+                        temp.current_level[a].p1,
+                        temp.current_level[a].p2,
+                        temp.current_level[a].p3,
+                        temp.current_level[a].p4,
+                    ),
+                )
+            print("Shape Type: ", temp.current_level[a].shape_type)
+            print("index: ", temp.current_level[a].index)
+            print("free_edges: ", temp.current_level[a].free_edges)
+            print("all_edges:", temp.current_level[a].all_edges)
+        self.screen.blit(canvas, (0, 0))
+        pygame.display.update()
+
     def temporary_event_handler(self):
         # TODO: Remove this method
         while self.running:
@@ -78,64 +128,20 @@ class PuzzleGame:
                 elif event.type == pygame.KEYDOWN:
                     # when pressing the key A generate a new level
                     # clear the screen
-                    self.screen.fill((255, 255, 255))
                     temp.clear_level()
                     print("*" * 20)
                     print("Generating level")
                     print("*" * 20)
-                    if event.key == pygame.K_a:
-                        pygame.display.update()
+                    canvas = pygame.Surface((1280, 720))
+                    canvas.fill((255, 255, 255))
+                    if event.key == pygame.K_e:
                         temp.generate_level()
-                        pygame.display.update()
-                        # the rainbow colors in order inside a list of rgb values
-                        for a in range(len(temp.current_level)):
-                            if temp.current_level[a].shape_type == "square":
-                                pygame.draw.polygon(
-                                    self.screen,
-                                    temp.current_level[a].color,
-                                    (
-                                        temp.current_level[a].p1,
-                                        temp.current_level[a].p2,
-                                        temp.current_level[a].p3,
-                                        temp.current_level[a].p4,
-                                    ),
-                                )
-                            elif temp.current_level[a].shape_type == "triangle":
-                                pygame.draw.polygon(
-                                    self.screen,
-                                    temp.current_level[a].color,
-                                    (
-                                        temp.current_level[a].p1,
-                                        temp.current_level[a].p2,
-                                        temp.current_level[a].p3,
-                                    ),
-                                )
-                            elif temp.current_level[a].shape_type == "circle":
-                                pygame.draw.circle(
-                                    self.screen,
-                                    temp.current_level[a].color,
-                                    temp.current_level[a].center,
-                                    temp.current_level[a].radius,
-                                )
-                            elif temp.current_level[a].shape_type == "rhombus":
-                                pygame.draw.polygon(
-                                    self.screen,
-                                    temp.current_level[a].color,
-                                    (
-                                        temp.current_level[a].p1,
-                                        temp.current_level[a].p2,
-                                        temp.current_level[a].p3,
-                                        temp.current_level[a].p4,
-                                    ),
-                                )
-                            print("Shape Type: ", temp.current_level[a].shape_type)
-                            print("index: ", temp.current_level[a].index)
-                            print("free_edges: ", temp.current_level[a].free_edges)
-                            print("all_edges:", temp.current_level[a].all_edges)
-                        # add the surface to the center of the display screen
-                        self.screen.blit(
-                            self.screen,
-                            (0, 0),
-                        )
-                        pygame.display.update()
-                        continue
+                        self.temporary_display(temp, canvas)
+                    elif event.key == pygame.K_m:
+                        temp.difficulty = 1
+                        temp.generate_level()
+                        self.temporary_display(temp, canvas)
+                    elif event.key == pygame.K_h:
+                        temp.difficulty = 2
+                        temp.generate_level()
+                        self.temporary_display(temp, canvas)
