@@ -1,3 +1,4 @@
+from ast import Not
 from itertools import count
 import pygame
 import random
@@ -135,7 +136,7 @@ class Square(Shape):
         # remove the edge from the free edges of that shape
         del shape.free_edges[that_edge]
         # if the shapes are the same then we can only attach to the outer edges
-        if self.shape_type == shape.shape_type:
+        if shape.shape_type in ("square", "rhombus"):
             # we can only attach to the outer edges of the that_edge
             match that_edge:
                 case 3:  # left edge
@@ -171,8 +172,6 @@ class Square(Shape):
                     self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[0]
         else:
-            # we have a different kind of shape
-            pass
             if shape.shape_type == "triangle":
                 # we have a triangle
                 match that_edge:
@@ -486,32 +485,51 @@ class Rhombus(Shape):
         will be exactly 100 pixels long and will be at an angle of 60 degrees to the edge formed by
         vertex p1 and p2
         """
-        angle = math.atan2(p2[1] - p1[1], p2[0] - p1[0]) + math.pi / 3
-        complement = math.pi - angle
-        complement = angle if notComp else complement
-        print(math.degrees(angle), math.degrees(complement))
-        if type:
-            x = p2[0] + dis * math.cos(complement)
-            y = p2[1] + dis * math.sin(complement)
-        else:
-            x = p1[0] + dis * math.cos(complement)
-            y = p1[1] + dis * math.sin(complement)
-        print("calcualted point: ", x, y)
-        return (x, y)
+        # Calculate the vector from vertex2 to vertex1
+        vector_v1v2 = [p1[0] - p2[0], p1[1] - p2[1]]
 
-    def _check_if_overlap(self, shape, p1, p2, dis, type=0, notComp=0):
+        # Calculate the magnitude of the vector
+        magnitude_v1v2 = math.sqrt(vector_v1v2[0] ** 2 + vector_v1v2[1] ** 2)
+
+        # Calculate the unit vector in the direction of v1v2
+        unit_vector_v1v2 = [
+            vector_v1v2[0] / magnitude_v1v2,
+            vector_v1v2[1] / magnitude_v1v2,
+        ]
+
+        # Calculate the components of the normal vector
+        normal_x = -unit_vector_v1v2[1]
+        normal_y = unit_vector_v1v2[0]
+
+        # Calculate the coordinates of the point forming 30-degree angle with the normal
+        angle_radians = math.radians(30)
+        if type:
+            point_x = p2[0] + dis * (
+                normal_x * math.cos(angle_radians) - normal_y * math.sin(angle_radians)
+            )
+            point_y = p2[1] + dis * (
+                normal_x * math.sin(angle_radians) + normal_y * math.cos(angle_radians)
+            )
+        else:
+            point_x = p1[0] + dis * (
+                normal_x * math.cos(angle_radians) - normal_y * math.sin(angle_radians)
+            )
+            point_y = p1[1] + dis * (
+                normal_x * math.sin(angle_radians) + normal_y * math.cos(angle_radians)
+            )
+
+        return point_x, point_y
+
+    def _check_if_close(self, p1, p2):
         """
-        This function will check if there is an overlap in vertices
+        This function checks if the point p1 and p2 are close to each other with a
+        tolerance of 3 pixels_
         """
-        flag = False
-        for a in (shape.p1, shape.p2, shape.p3):
-            temp = self._calculate_other_vertex(p1, p2, dis, type, notComp)
-            if math.isclose(a[0], temp[0], abs_tol=2) and math.isclose(
-                a[1], temp[1], abs_tol=2
-            ):
-                flag = True
-                break
-        return flag
+        x1, y1 = p1
+        x2, y2 = p2
+        if abs(x1 - x2) <= 3 and abs(y1 - y2) <= 3:
+            return True
+        return False
 
     def attach(self, shape: Shape):
         """
@@ -520,48 +538,53 @@ class Rhombus(Shape):
         this_edge = random.choice(list(self.free_edges.keys()))
         that_edge = random.choice(list(shape.free_edges.keys()))
         # delete the edge from the free edges of that shape
+        # that_edge = 2  # TODO: remove this line
         del shape.free_edges[that_edge]
         if shape.shape_type == "rhombus" or shape.shape_type == "square":
             # We are joining two rhombus and thus can only join on the outer edge
             match that_edge:
                 case 0:
-                    print("top edge")
                     # the top edge
+                    print("Adding to top edge")
                     self.p4 = shape.p1
                     self.p3 = shape.p2
-                    self.p1 = self._calculate_other_vertex(self.p3, self.p4, 100, 1)
-                    self.p2 = self._calculate_other_vertex(self.p3, self.p4, 100)
+                    self.p1 = self._calculate_other_vertex(self.p3, self.p4, -100, 1)
+                    self.p2 = self._calculate_other_vertex(self.p3, self.p4, -100)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[2]
 
                 case 1:
-                    print("right edge")
+                    print("Adding to right edge")
                     # the right edge
                     self.p1 = shape.p2
                     self.p4 = shape.p3
-                    self.p2 = self._calculate_other_vertex(self.p1, self.p4, 100)
-                    self.p3 = self._calculate_other_vertex(self.p1, self.p4, 100, 1)
+                    self.p2 = self._calculate_other_vertex(
+                        self.p1, self.p4, 100, type=0
+                    )
+                    self.p3 = self._calculate_other_vertex(
+                        self.p1, self.p4, 100, type=1
+                    )
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[3]
 
                 case 2:
-                    print("bottom edge")
+                    print("Adding to bottom edge")
                     # the bottom edge
                     self.p2 = shape.p3
                     self.p1 = shape.p4
-                    self.p3 = self._calculate_other_vertex(self.p2, self.p1, -100)
-                    self.p4 = self._calculate_other_vertex(self.p2, self.p1, -100, 1)
+                    self.p3 = self._calculate_other_vertex(self.p2, self.p1, 100)
+                    self.p4 = self._calculate_other_vertex(self.p2, self.p1, 100, 1)
                     # update the all edges and free edges
                     self._setAllEdges()
                     self.free_edges = copy.deepcopy(self.all_edges)
                     del self.free_edges[0]
 
                 case 3:
-                    print("left edge")
+                    print("Adding to left edge")
                     # the left edge
                     self.p3 = shape.p4
                     self.p2 = shape.p1
@@ -575,89 +598,80 @@ class Rhombus(Shape):
             # We are joining a rhombus with any other shape
             if shape.shape_type == "triangle":
                 match that_edge:
-                    # case 0:
-                    #     print("left edge")
-                    #     # the left edge
-                    #     self.p3 = shape.p1
-                    #     self.p2 = shape.p2
-                    #     if self._check_if_overlap(
-                    #         shape, self.p3, self.p2, 100, 0, 1
-                    #     ) and self._check_if_overlap(
-                    #         shape, self.p3, self.p2, 100, 1, 1
-                    #     ):
-                    #         print("overlap")
-                    #         self.p4 = self._calculate_other_vertex(
-                    #             self.p3, self.p2, 100, 0, 1
-                    #         )
-                    #         self.p1 = self._calculate_other_vertex(
-                    #             self.p3, self.p2, 100, 1, 1
-                    #         )
-                    #     else:
-                    #         print("no overlap")
-                    #         self.p4 = self._calculate_other_vertex(
-                    #             self.p3, self.p2, -100, 0, 1
-                    #         )
-                    #         self.p1 = self._calculate_other_vertex(
-                    #             self.p3, self.p2, -100, 1, 1
-                    #         )
-                    #     # update the all edges and free edges
-                    #     self._setAllEdges()
-                    #     self.free_edges = copy.deepcopy(self.all_edges)
-                    #     del self.free_edges[1]
-                    # case 1:
-                    #     print("right edge")
-                    #     # the right edge
-                    #     self.p1 = shape.p2
-                    #     self.p4 = shape.p3
-                    #     if self._check_if_overlap(
-                    #         shape, self.p4, self.p1, 100, 0, 1
-                    #     ) and self._check_if_overlap(
-                    #         shape, self.p4, self.p1, 100, 1, 1
-                    #     ):
-                    #         print("overlap")
-                    #         self.p3 = self._calculate_other_vertex(
-                    #             self.p4, self.p1, 100, 0, 1
-                    #         )
-                    #         self.p2 = self._calculate_other_vertex(
-                    #             self.p4, self.p1, 100, 1, 1
-                    #         )
-                    #     else:
-                    #         print("no overlap")
-                    #         self.p3 = self._calculate_other_vertex(
-                    #             self.p1, self.p4, -100, 1, 1
-                    #         )
-                    #         self.p2 = self._calculate_other_vertex(
-                    #             self.p4, self.p1, 100, 1, 1
-                    #         )
-                    #     # update the all edges and free edges
-                    #     self._setAllEdges()
-                    #     self.free_edges = copy.deepcopy(self.all_edges)
-                    #     del self.free_edges[3]
-                    case 2:
-                        print("bottom edge")
-                        # the bottom edge
-                        self.p2 = shape.p3
-                        self.p1 = shape.p1
-                        if self._check_if_overlap(
-                            shape, self.p2, self.p1, 100, 0, 0
-                        ) and self._check_if_overlap(
-                            shape, self.p2, self.p1, 100, 1, 0
-                        ):
-                            print("overlap")
-                            self.p3 = self._calculate_other_vertex(
-                                self.p2, self.p1, 100, 0, 1
-                            )
+                    case 0:
+                        print("Adding a rhombus to the left of a triangle")
+                        # left edge
+                        self.p2 = shape.p2
+                        self.p3 = shape.p1
+                        temp = self._calculate_other_vertex(
+                            self.p2, self.p3, -100, type=1
+                        )
+                        if self._check_if_close(temp, shape.p3):
+                            print("there is a collision")
                             self.p4 = self._calculate_other_vertex(
-                                self.p2, self.p1, 100, 1, 1
+                                self.p2, self.p3, 100, 1
+                            )
+                            self.p1 = self._calculate_other_vertex(
+                                self.p2, self.p3, 100
                             )
                         else:
+                            print("no collision")
+                            self.p4 = temp
+                            self.p1 = self._calculate_other_vertex(
+                                self.p2, self.p3, -100, type=0
+                            )
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = copy.deepcopy(self.all_edges)
+                        del self.free_edges[1]
+
+                    case 1:
+                        print("Adding a rhombus to the right of a triangle")
+                        # right edge
+                        self.p1 = shape.p2
+                        self.p4 = shape.p3
+                        temp = self._calculate_other_vertex(self.p1, self.p4, 100, 0, 1)
+                        if self._check_if_close(temp, shape.p1):
+                            print("there is a collision")
+                            self.p2 = self._calculate_other_vertex(
+                                self.p1, self.p4, -100, type=0, notComp=1
+                            )
                             self.p3 = self._calculate_other_vertex(
-                                self.p2, self.p1, 100, 0, 0
+                                self.p1, self.p4, -100, type=1, notComp=1
+                            )
+                        else:
+                            print("no collision")
+                            self.p2 = temp
+                            self.p3 = self._calculate_other_vertex(
+                                self.p1, self.p4, 100, type=1, notComp=1
+                            )
+                        # update the all edges and free edges
+                        self._setAllEdges()
+                        self.free_edges = copy.deepcopy(self.all_edges)
+                        del self.free_edges[3]
+
+                    case 2:
+                        print("Adding a rhombus to the bottom of a triangle")
+                        # bottom edge
+                        self.p1 = shape.p1
+                        self.p2 = shape.p3
+                        temp = self._calculate_other_vertex(
+                            self.p1, self.p2, 100, type=0, notComp=0
+                        )
+                        if self._check_if_close(temp, shape.p2):
+                            print("there is a collision")
+                            self.p3 = self._calculate_other_vertex(
+                                self.p1, self.p2, -100, type=1, notComp=0
                             )
                             self.p4 = self._calculate_other_vertex(
-                                self.p2, self.p1, 100, 1, 0
+                                self.p1, self.p2, -100, type=0, notComp=0
                             )
-                            print("no overlap")
+                        else:
+                            print("no collision")
+                            self.p4 = temp
+                            self.p3 = self._calculate_other_vertex(
+                                self.p1, self.p2, 100, type=1, notComp=0
+                            )
                         # update the all edges and free edges
                         self._setAllEdges()
                         self.free_edges = copy.deepcopy(self.all_edges)

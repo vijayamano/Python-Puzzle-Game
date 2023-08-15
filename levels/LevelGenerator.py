@@ -1,5 +1,6 @@
 from calendar import c
 import random
+from tkinter import N
 from levels import EASY_DEPTH, DEFAULT_SIZE, DEFAULT_SURFACE_SIZE
 from pygame import Surface
 from levels.Shapes import Rhombus, Square, Triangle, Circle
@@ -62,7 +63,10 @@ class LevelGenerator:
         for shape in possible:
             if shape.shape_type == "triangle" and shape.circles_attached == 1:
                 possible.remove(shape)
-        return random.choice(possible)
+        try:
+            return random.choice(possible)
+        except:
+            return None
 
     def generate_easy_level(self):
         """
@@ -71,7 +75,14 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
-            shape = random.choice(["rhombus", "triangle"])
+            shape = random.choice(
+                [
+                    "rhombus",
+                    "square",
+                    "triangle",
+                    "circle",
+                ]
+            )
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
@@ -80,6 +91,9 @@ class LevelGenerator:
                         continue
                     # pick a random shape that has free vertices
                     random_shape = self._choose_random_shape()
+                    if random_shape is None:
+                        print("impossible to generate level")
+                        return
                     # generate a new random shape that will be attached to the existing random one
                     new_shape = Square(i)
                     # attach the new shape to the random shape
