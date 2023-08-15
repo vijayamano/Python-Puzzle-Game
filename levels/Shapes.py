@@ -38,6 +38,11 @@ class Shape:
     has a certain number of maximum circles it can accomadate before being covered completely
     """
 
+    color = (0, 0, 0)
+    """
+    The color of the shape
+    """
+
     def __init__(self, index) -> None:
         self.index = index
 

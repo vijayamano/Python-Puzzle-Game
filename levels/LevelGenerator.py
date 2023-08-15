@@ -1,11 +1,7 @@
-from calendar import c
 import random
-from tkinter import N
-from levels import EASY_DEPTH, DEFAULT_SIZE, DEFAULT_SURFACE_SIZE
+from levels import EASY_DEPTH, DEFAULT_SURFACE_SIZE, SHAPES, COLORS
 from pygame import Surface
 from levels.Shapes import Rhombus, Square, Triangle, Circle
-
-SHAPES = ["square", "rectangle"]
 
 
 class LevelGenerator:
@@ -65,8 +61,34 @@ class LevelGenerator:
                 possible.remove(shape)
         try:
             return random.choice(possible)
-        except:
+        except IndexError:
             return None
+
+    def _generate_colors(self):
+        """
+        This is a helper function to be run after a level has been generated.
+        The function will assign a color to each shape in the level.
+        A color is assigned based on if the order shapes are generated. Each iteration
+        has either a chance to be assigned a new color or to be assigned the same color.
+        The probability of assigning a new color increases as the level gets deeper.
+        """
+        prob = 50
+        for shape in self.current_level:
+            # for the first shape we assign a random color\
+            if self.current_level.index(shape) == 0:
+                shape.color = random.choice(COLORS)
+                continue
+            # choose whether to assign a new color or not
+            if random.randint(0, 100) < prob:
+                # assign a new color
+                shape.color = random.choice(COLORS)
+            else:
+                # assign the same color
+                shape.color = self.current_level[
+                    self.current_level.index(shape) - 1
+                ].color
+            # decrease the probability of assigning the same color
+            prob -= 5
 
     def generate_easy_level(self):
         """
@@ -75,14 +97,6 @@ class LevelGenerator:
         for i in range(EASY_DEPTH):
             # select a random shape
             shape = random.choice(SHAPES)
-            shape = random.choice(
-                [
-                    "rhombus",
-                    "square",
-                    "triangle",
-                    "circle",
-                ]
-            )
             match shape:
                 case "square":
                     if len(self.current_level) == 0:
@@ -142,3 +156,6 @@ class LevelGenerator:
                     new_shape.attach(random_shape)
                     # add the new shape to the current level
                     self.current_level.append(new_shape)
+
+        # assign colors to the shapes
+        self._generate_colors()

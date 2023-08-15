@@ -88,58 +88,45 @@ class PuzzleGame:
                         temp.generate_level()
                         pygame.display.update()
                         # the rainbow colors in order inside a list of rgb values
-                        colors = [
-                            (255, 0, 0),
-                            (255, 127, 0),
-                            (255, 255, 0),
-                            (0, 255, 0),
-                            (0, 0, 255),
-                            (75, 0, 130),
-                            (148, 0, 211),
-                        ]
                         for a in range(len(temp.current_level)):
                             if temp.current_level[a].shape_type == "square":
                                 pygame.draw.polygon(
                                     self.screen,
-                                    colors[(a + 7) % 7],
+                                    temp.current_level[a].color,
                                     (
                                         temp.current_level[a].p1,
                                         temp.current_level[a].p2,
                                         temp.current_level[a].p3,
                                         temp.current_level[a].p4,
                                     ),
-                                    width=2,
                                 )
                             elif temp.current_level[a].shape_type == "triangle":
                                 pygame.draw.polygon(
                                     self.screen,
-                                    colors[(a + 7) % 7],
+                                    temp.current_level[a].color,
                                     (
                                         temp.current_level[a].p1,
                                         temp.current_level[a].p2,
                                         temp.current_level[a].p3,
                                     ),
-                                    width=2,
                                 )
                             elif temp.current_level[a].shape_type == "circle":
                                 pygame.draw.circle(
                                     self.screen,
-                                    colors[(a + 7) % 7],
+                                    temp.current_level[a].color,
                                     temp.current_level[a].center,
                                     temp.current_level[a].radius,
-                                    width=2,
                                 )
                             elif temp.current_level[a].shape_type == "rhombus":
                                 pygame.draw.polygon(
                                     self.screen,
-                                    colors[(a + 7) % 7],
+                                    temp.current_level[a].color,
                                     (
                                         temp.current_level[a].p1,
                                         temp.current_level[a].p2,
                                         temp.current_level[a].p3,
                                         temp.current_level[a].p4,
                                     ),
-                                    width=2,
                                 )
                             print("Shape Type: ", temp.current_level[a].shape_type)
                             print("index: ", temp.current_level[a].index)
