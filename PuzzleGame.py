@@ -1,7 +1,10 @@
+from customtkinter import CTk, deactivate_automatic_dpi_awareness
+from tkinter import Tk
 import pygame
-import pygame_gui
-from ScreenHandler import ScreenHandler
+from ui.StartScreen import StartScreen
 from levels.LevelGenerator import LevelGenerator
+
+deactivate_automatic_dpi_awareness()
 
 
 class PuzzleGame:
@@ -25,12 +28,15 @@ class PuzzleGame:
     Defaults to 670 frames per second.
     """
 
-    screen_handler = ScreenHandler()
+    current_screen = None
     """
-    The screen handler object that is responsible for managing the screens of the game.
+    Holds the class of the current TKinter screen that is on display.
     """
 
-    ui_manager = None
+    root = None
+    """
+    The tkinter root object that is used to display the game.
+    """
 
     def start(self):
         """
@@ -39,32 +45,17 @@ class PuzzleGame:
         success, failures = pygame.init()
         print("{0} successes and {1} failures".format(success, failures))
         self.running = True
-        # Create the window
-        self.screen = pygame.display.set_mode((1280, 720))
-        # Start reading the events of the game
-        self.ui_manager = pygame_gui.UIManager((1280, 720))
-        self.build_ui()
-        self.temporary_event_handler()  # TODO: Remove this line
+        # Create the pygame pseudo screen that will be blitzed to the tkinter frame later on
+        self.screen = pygame.Surface((1280, 720))
+        self.root = CTk()
+        self.root.geometry("1280x720")
+        self.root.title("Clay Factory")
+        # create the start screen
+        self.current_screen = StartScreen(self.root, 1280, 720)
+        # add the start screen to the root
+        self.root.mainloop()
         # self.handle_events()
-
-    def build_ui(self):
-        """
-        This method builds the user interface of the welome screen
-        """
-        pass
-
-    def handle_events(self):
-        """
-        This method handles routing to eacvh screen's main event handler. This method
-        is responsible for directing the flow of the game.
-        """
-        # pass
-        while self.running:
-            pass
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    self.running = False
-                    break
+        # self.temporary_event_handler()  # TODO: Remove this line
 
     def temporary_display(self, temp, canvas):
         pygame.display.update()

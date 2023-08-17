@@ -1,0 +1,22 @@
+{
+  "@action_button": {
+    "colours":{
+        "normal_bg": "#00000000",
+        "dark_bg": "#00000000",
+        "normal_border": "#00000000",
+        "hover_border": "#00000000",
+        "hovered_bg": "#00000000"
+    },
+
+    "misc":{
+        "shadow_width": "0",
+        "border-width": "0"
+    },
+
+    "images": {
+        "normal_image":{
+            "path": "assets/textures/button_bg_normal 1.png"
+        }
+    }
+    }
+}
