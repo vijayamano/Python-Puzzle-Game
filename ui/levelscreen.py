@@ -1,15 +1,12 @@
-from ast import List
-from xmlrpc.client import Boolean
 from kivy.uix.screenmanager import Screen
 from kivy.lang.builder import Builder
-from kivy.uix.button import Button
-from kivy.properties import ObjectProperty, ListProperty
+from kivy.properties import ObjectProperty, ListProperty, BooleanProperty
 from kivy.uix.image import Image
 from kivy.effects.scroll import ScrollEffect
 from kivy.animation import Animation
-from kivy.uix.widget import Widget
 from kivy.uix.boxlayout import BoxLayout
 from kivy.core.window import Window
+from levels.levelhandler import LevelHandler
 from ui.hoverbehaviour import HoverBehavior
 
 
@@ -52,22 +49,6 @@ Builder.load_string(
                 size_hint_y: None
                 height: self.minimum_height
                 spacing: "90dp"
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
-
-                LevelCard:
                 
 
 <LevelCard>:
@@ -92,11 +73,21 @@ Builder.load_string(
             size: self.size if not self.hovering else self.container_size
             pos: self.pos if not self.hovering else (self.center[0] - self.container_size[0] / 2, self.center[1] - self.container_size[1] / 2)
             source: "assets/textures/level_card.png"
-    Image:
-        id:level_card_bg
-        source: "assets/textures/level_preview_bg.png"
+
+    AnchorLayout:
         size_hint: 1,.7
-        allow_stretch: True
+        anchor_x: "center"
+        anchor_y: "center"
+        Image:
+            id:level_card_bg
+            source: "assets/textures/level_preview_bg.png"
+            size_hint: 1,1
+            allow_stretch: True
+        Image:
+            id:level_card_preview
+            source: root.preview_path
+            size_hint: 1,1
+            allow_stretch: True
 
     BoxLayout:
         id:level_card_info
@@ -107,7 +98,7 @@ Builder.load_string(
 
         Image:
             id:level_card_difficulty
-            source: "assets/textures/difficulty-1.png"
+            source: root.difficulty_image
             size_hint: .2,1
             allow_stretch: True
 
@@ -124,7 +115,7 @@ Builder.load_string(
 
             Label:
                 id:level_card_title
-                text: "Level 1"
+                text: "Level "+str(root.level_no)
                 font_size: "30dp"
                 color: 1,1,1,1
                 font_name: "assets/fonts/main.ttf"
@@ -138,11 +129,43 @@ class LevelCard(BoxLayout, HoverBehavior):
     A class that represents a level card
     """
 
-    hovering = Boolean(False)
+    hovering = BooleanProperty(False)
+    """
+    Represents whether the mouse is hovering over the widget
+    """
 
     container_size = ListProperty([0, 0])
+    """
+    The size of the container
+    """
 
-    def __init__(self, *args, **kwargs):
+    level_no = None
+    """
+    The level number
+    """
+
+    preview_path = None
+    """
+    The path to the preview image
+    """
+
+    difficulty = None
+    """
+    The difficulty of the level
+    """
+
+    difficulty_image = None
+
+    def __init__(self, level_no, preview_path, difficulty, *args, **kwargs):
+        self.level_no = level_no
+        self.preview_path = preview_path
+        self.difficulty = difficulty
+        if self.difficulty == "easy":
+            self.difficulty_image = "assets/textures/difficulty.png"
+        elif self.difficulty == "medium":
+            self.difficulty_image = "assets/textures/difficulty-1.png"
+        elif self.difficulty == "hard":
+            self.difficulty_image = "assets/textures/difficulty-2.png"
         super().__init__(*args, **kwargs)
         Window.bind(mouse_pos=self.on_mouse_pos)
 
@@ -178,14 +201,17 @@ class LevelScreen(Screen):
 
     bg_texture = ObjectProperty(None)
 
+    level_handler = LevelHandler()
+
     def __init__(self, *args, **Kwargs):
         super().__init__(*args, **Kwargs)
         self.bg_texture = Image(source="assets/textures/start_bg.png").texture
         self.bg_texture.wrap = "repeat"
-        self.bg_texture.uvsize = (1, 3)
+        self.bg_texture.uvsize = (1, 10)
         # cancel the scroll effect
         self.ids.scroll_view.effect_cls = ScrollEffect
         # Load the level cards
+        self.load_levels()
 
     def on_start():
         pass
@@ -194,3 +220,23 @@ class LevelScreen(Screen):
         """ "
         Loads the levels from the level generator.
         """
+        self.level_handler.load_levels()
+        count = 0
+        # add the easy levels to the grid
+        for level in self.level_handler.easy_levels:
+            count += 1
+            self.ids.level_selector_grid.add_widget(
+                LevelCard(count, level.preview_path, level.difficulty)
+            )
+        # add the medium levels to the grid
+        for level in self.level_handler.medium_levels:
+            count += 1
+            self.ids.level_selector_grid.add_widget(
+                LevelCard(count, level.preview_path, level.difficulty)
+            )
+        # add the hard levels to the grid
+        for level in self.level_handler.hard_levels:
+            count += 1
+            self.ids.level_selector_grid.add_widget(
+                LevelCard(count, level.preview_path, level.difficulty)
+            )

@@ -17,7 +17,7 @@ hard = []
 
 generator = LevelGenerator(0)
 
-for i in range(50):
+for i in range(20):
     generator.difficulty = 0
     generator.generate_level()
     temp_easy.append(generator.current_level)
@@ -30,6 +30,7 @@ for i in range(50):
     generator.generate_level()
     temp_hard.append(generator.current_level)
     generator.clear_level()
+
 print("levels are generated")
 print("formatting Data to fit JSON")
 targets = [temp_easy, temp_medium, temp_hard]
@@ -67,23 +68,26 @@ for target_id in range(len(targets)):
 
 print("dumping data to JSON")
 print(len(easy), len(medium), len(hard))
-with open("generated levels/easy.json", "w") as f:
+with open("assets/levels/easy.json", "w") as f:
     json.dump(easy, f)
 
-with open("generated levels/medium.json", "w") as f:
+with open("assets/levels/medium.json", "w") as f:
     json.dump(medium, f)
 
-with open("generated levels/hard.json", "w") as f:
+with open("assets/levels/hard.json", "w") as f:
     json.dump(hard, f)
 
 # now we draw the surface and the shapes to it and export them as images
 print("Exporting images")
 count = 0
+easy_count = 0
+medium_count = 0
+hard_count = 0
 for target_id in range(3):
     for level in targets[target_id]:
         count += 1
-        surface = pygame.Surface((1280, 720))
-        surface.fill((255, 255, 255))
+        surface = pygame.Surface((700, 700), pygame.SRCALPHA, 32)
+        surface.fill((255, 255, 255, 0))
         for shape in level:
             if shape.shape_type == "triangle":
                 pygame.draw.polygon(
@@ -115,8 +119,13 @@ for target_id in range(3):
                     0,
                 )
         if target_id == 0:
-            pygame.image.save(surface, "generated levels/easy/" + str(count) + ".png")
+            easy_count += 1
+            pygame.image.save(surface, "assets/levels/easy/" + str(easy_count) + ".png")
         elif target_id == 1:
-            pygame.image.save(surface, "generated levels/medium/" + str(count) + ".png")
+            medium_count += 1
+            pygame.image.save(
+                surface, "assets/levels/medium/" + str(medium_count) + ".png"
+            )
         elif target_id == 2:
-            pygame.image.save(surface, "generated levels/hard/" + str(count) + ".png")
+            hard_count += 1
+            pygame.image.save(surface, "assets/levels/hard/" + str(hard_count) + ".png")
