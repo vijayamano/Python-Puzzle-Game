@@ -7,6 +7,7 @@ from kivy.properties import ListProperty
 from kivy.uix.screenmanager import Screen
 from kivy.animation import Animation
 from functools import partial
+from kivy.modules import inspector
 
 Builder.load_string(
     """
@@ -92,6 +93,7 @@ class PuzzleGame(App):
         welcome_screen = WelcomeScreen()
         self.main_screen.add_widget(welcome_screen)
         welcome_screen.on_start()
+        inspector.create_inspector(Window, welcome_screen)
         return self.main_screen
 
     def on_start(self):

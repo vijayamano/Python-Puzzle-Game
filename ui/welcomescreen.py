@@ -1,8 +1,6 @@
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.lang import Builder
 from kivy.animation import Animation
-from kivy.uix.screenmanager import Screen
-
 from ui.levelscreen import LevelScreen
 
 
