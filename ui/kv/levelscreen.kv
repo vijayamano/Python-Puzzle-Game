@@ -1,0 +1,70 @@
+#:kivy 1.10.0
+<LevelScreen>:
+    name: "level_screen"
+    
+    RecycleView:
+        viewclass: "LevelCard"
+        id: recycle_view
+        RecycleGridLayout:
+            canvas.before:
+                Color:
+                    rgba: 1, 1, 1, 1
+                Rectangle:
+                    size: self.size
+                    pos: self.pos
+                    texture: root.bg_texture
+            default_size: None, dp(400)
+            default_size_hint: 1, None
+            padding: "80dp", "150dp", "80dp", "80dp"
+            spacing: "80dp"
+            size_hint_y: None
+            height: self.minimum_height
+            cols: 3
+
+    Image:
+        id: level_screen_title
+        source: "assets/textures/level_screen_top.png"
+        size_hint:None,None
+        size:self.texture_size
+        pos_hint:{'center_x':.5,'top':1}
+
+    Button:
+        id: back_button
+        size_hint:None,None
+        size:dp(75), dp(75)
+        pos_hint:{'center_x':.1,'center_y':.9}
+        background_normal:"assets/textures/back_button.png"
+        background_down:"assets/textures/back_button.png"
+        on_release:root.go_back()
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.5
+            BoxShadow:
+                pos: self.pos
+                size: self.size
+                offset: 0, -3
+                spread_radius: -3, -3
+                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
+                blur_radius: 40 if self.state == "normal" else 10
+
+
+    Button:
+        id: settings_button
+        size_hint:None,None
+        size:dp(75), dp(75)
+        pos_hint:{'center_x':.9,'center_y':.9}
+        background_normal:"assets/textures/settings_button.png"
+        background_down:"assets/textures/settings_button.png"
+        on_release:root.show_settings()
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.5
+            BoxShadow:
+                pos: self.pos
+                size: self.size
+                offset: 0, -3
+                spread_radius: -3, -3
+                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
+                blur_radius: 40 if self.state == "normal" else 10
+
+                    

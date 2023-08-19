@@ -13,154 +13,11 @@ from levels.levelhandler import LevelHandler
 from ui.hoverbehaviour import HoverBehavior
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.modalview import ModalView
 
 
-Builder.load_string(
-    """
-<LevelScreen>:
-    name: "level_screen"
-    
-    RecycleView:
-        viewclass: "LevelCard"
-        id: recycle_view
-        RecycleGridLayout:
-            canvas.before:
-                Color:
-                    rgba: 1, 1, 1, 1
-                Rectangle:
-                    size: self.size
-                    pos: self.pos
-                    texture: root.bg_texture
-            default_size: None, dp(400)
-            default_size_hint: 1, None
-            padding: "80dp", "150dp", "80dp", "80dp"
-            spacing: "80dp"
-            size_hint_y: None
-            height: self.minimum_height
-            cols: 3
-
-    Image:
-        id: level_screen_title
-        source: "assets/textures/level_screen_top.png"
-        size_hint:None,None
-        size:self.texture_size
-        pos_hint:{'center_x':.5,'top':1}
-
-    Button:
-        id: back_button
-        size_hint:None,None
-        size:dp(75), dp(75)
-        pos_hint:{'center_x':.1,'center_y':.9}
-        background_normal:"assets/textures/back_button.png"
-        background_down:"assets/textures/back_button.png"
-        on_release:root.go_back()
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 0.5
-            BoxShadow:
-                pos: self.pos
-                size: self.size
-                offset: 0, -3
-                spread_radius: -3, -3
-                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
-                blur_radius: 40 if self.state == "normal" else 10
-
-
-    Button:
-        id: settings_button
-        size_hint:None,None
-        size:dp(75), dp(75)
-        pos_hint:{'center_x':.9,'center_y':.9}
-        background_normal:"assets/textures/settings_button.png"
-        background_down:"assets/textures/settings_button.png"
-        on_release:root.show_settings()
-        canvas.before:
-            Color:
-                rgba: 0, 0, 0, 0.5
-            BoxShadow:
-                pos: self.pos
-                size: self.size
-                offset: 0, -3
-                spread_radius: -3, -3
-                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
-                blur_radius: 40 if self.state == "normal" else 10
-
-
-
-                
-
-<LevelCard>:
-    height: self.width
-    anchor_x: "center"
-    anchor_y: "center"
-    canvas.before:
-        Color:
-            rgba: 0, 0, 0, 0.6
-        BoxShadow:
-            pos: self.pos
-            size: self.size
-            offset: 0, -5
-            spread_radius: -10, -10
-            border_radius: 10, 10, 10, 10
-            blur_radius: 40 if not self.hovering else 80
-  
-    Image:
-        id:level_card_bg
-        size_hint:1,1
-        source: "assets/textures/level_card.png"
-        fit_mode: "fill"
-
-    BoxLayout:
-        id: level_card_container
-        size_hint: 1,1
-        orientation: "vertical"
-        padding: "30dp", "10dp", "30dp", "10dp"
-
-        AnchorLayout:
-            size_hint: 1,.7
-            anchor_x: "center"
-            anchor_y: "center"
-            Image:
-                id:level_card_preview_bg
-                source: "assets/textures/level_preview_bg.png"
-                size_hint: 1,1
-                allow_stretch: True
-            Image:
-                id:level_card_preview
-                source: root.preview_path
-                size_hint: 1,1
-                allow_stretch: True
-
-        BoxLayout:
-            id:level_card_info
-            size_hint: 1,.3
-            orientation:"horizontal"
-            spacing: "10dp"
-
-            Image:
-                id:level_card_difficulty
-                source: root.difficulty_image
-                size_hint: .2,1
-                allow_stretch: True
-
-            AnchorLayout:
-                size_hint: .8,1
-                anchor_x: "center"
-                anchor_y: "center"            
-                Image:
-                    id:level_card_title_bg
-                    source: "assets/textures/level_title_bg.png"
-                    size_hint: .8,1
-                    fit_mode: "contain"
-
-                Label:
-                    id:level_card_title
-                    text: "Level "+str(root.level_no)
-                    font_size: "30dp"
-                    color: 1,1,1,1
-                    font_name: "assets/fonts/main.ttf"
-"""
-)
+Builder.load_file("ui/kv/levelscreen.kv")
+Builder.load_file("ui/kv/levelcard.kv")
 
 
 class LevelCard(AnchorLayout, HoverBehavior):
@@ -178,7 +35,7 @@ class LevelCard(AnchorLayout, HoverBehavior):
     The size of the container
     """
 
-    level_no = NumericProperty(0)
+    level_no = StringProperty()
     """
     The level number
     """
@@ -216,6 +73,10 @@ class LevelCard(AnchorLayout, HoverBehavior):
 
     def set_false(self, *args):
         self.hovering = False
+
+
+class DifficultyMenu(ModalView):
+    pass
 
 
 class LevelScreen(RelativeLayout):
@@ -318,6 +179,15 @@ class LevelScreen(RelativeLayout):
         Loads the levels from the level generator.
         """
         self.level_handler.load_levels()
+        # add the inifinite level card as the first card in the list
+        self.levels.append(
+            {
+                "level_no": "Endless",
+                "preview_path": "assets/textures/infinite_preview.png",
+                "difficulty": "∞",
+                "difficulty_image": "assets/textures/infinite.png",
+            }
+        )
         for level in (
             self.level_handler.easy_levels
             + self.level_handler.medium_levels
@@ -326,10 +196,15 @@ class LevelScreen(RelativeLayout):
             self.count += 1
             self.levels.append(
                 {
-                    "level_no": self.count,
+                    "level_no": "Level " + str(self.count),
                     "preview_path": level.preview_path,
                     "difficulty": level.difficulty,
                     "difficulty_image": level.difficulty_path,
                 }
             )
         self.ids.recycle_view.data = self.levels
+
+    def show_difficulty(self):
+        """
+        Opens up a modal dialogue for picking difficulty
+        """
