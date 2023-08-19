@@ -18,7 +18,13 @@ class Level:
     The path to the preview image
     """
 
-    def __init__(self, difficulty, shapes, preview_path):
+    difficulty_path = None
+    """
+    The path to the difficulty image
+    """
+
+    def __init__(self, difficulty, shapes, preview_path, difficulty_path):
         self.difficulty = difficulty
         self.shapes = shapes
         self.preview_path = preview_path
+        self.difficulty_path = difficulty_path

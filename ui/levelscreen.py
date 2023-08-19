@@ -1,64 +1,101 @@
-from kivy.uix.screenmanager import Screen
 from kivy.lang.builder import Builder
-from kivy.properties import ObjectProperty, ListProperty, BooleanProperty
+from kivy.properties import (
+    ObjectProperty,
+    ListProperty,
+    BooleanProperty,
+    NumericProperty,
+    StringProperty,
+)
 from kivy.uix.image import Image
 from kivy.effects.scroll import ScrollEffect
 from kivy.animation import Animation
-from kivy.uix.boxlayout import BoxLayout
-from kivy.core.window import Window
 from levels.levelhandler import LevelHandler
 from ui.hoverbehaviour import HoverBehavior
+from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.anchorlayout import AnchorLayout
 
 
 Builder.load_string(
     """
 <LevelScreen>:
     name: "level_screen"
-
-    ScrollView:
-        id: scroll_view
-        size_hint:1,1
-        pos_hint:{"center_x":0.5,"center_y":0.5}
-
-        BoxLayout:
+    
+    RecycleView:
+        viewclass: "LevelCard"
+        id: recycle_view
+        RecycleGridLayout:
             canvas.before:
                 Color:
-                    rgb: 1, 1, 1
+                    rgba: 1, 1, 1, 1
                 Rectangle:
                     size: self.size
                     pos: self.pos
                     texture: root.bg_texture
-            id: main_container
-            orientation: "vertical"
+            default_size: None, dp(400)
+            default_size_hint: 1, None
+            padding: "80dp", "150dp", "80dp", "80dp"
+            spacing: "80dp"
             size_hint_y: None
             height: self.minimum_height
-            padding: "90dp", "50dp", "90dp", "50dp"
-            spacing: "50dp"
-            pos_hint:{"center_x":0.5,"center_y":0.5}
+            cols: 3
 
-            Image:          
-                id: level_selector_title
-                source: "assets/textures/level_selector_title.png"
-                size_hint:None,None
-                size: self.texture_size[0]*1.5,self.texture_size[1]*1.5
-                pos_hint:{"center_x":0.5,"center_y":0.5}
+    Image:
+        id: level_screen_title
+        source: "assets/textures/level_screen_top.png"
+        size_hint:None,None
+        size:self.texture_size
+        pos_hint:{'center_x':.5,'top':1}
 
-            GridLayout:
-                id: level_selector_grid
-                cols: 3
-                size_hint_y: None
-                height: self.minimum_height
-                spacing: "90dp"
+    Button:
+        id: back_button
+        size_hint:None,None
+        size:dp(75), dp(75)
+        pos_hint:{'center_x':.1,'center_y':.9}
+        background_normal:"assets/textures/back_button.png"
+        background_down:"assets/textures/back_button.png"
+        on_release:root.go_back()
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.5
+            BoxShadow:
+                pos: self.pos
+                size: self.size
+                offset: 0, -3
+                spread_radius: -3, -3
+                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
+                blur_radius: 40 if self.state == "normal" else 10
+
+
+    Button:
+        id: settings_button
+        size_hint:None,None
+        size:dp(75), dp(75)
+        pos_hint:{'center_x':.9,'center_y':.9}
+        background_normal:"assets/textures/settings_button.png"
+        background_down:"assets/textures/settings_button.png"
+        on_release:root.show_settings()
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.5
+            BoxShadow:
+                pos: self.pos
+                size: self.size
+                offset: 0, -3
+                spread_radius: -3, -3
+                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
+                blur_radius: 40 if self.state == "normal" else 10
+
+
+
                 
 
 <LevelCard>:
-    size_hint: 1, None
     height: self.width
-    orientation: "vertical"
-    padding: "10dp", "20dp", "10dp", "10dp"
+    anchor_x: "center"
+    anchor_y: "center"
     canvas.before:
         Color:
-            rgba: 0, 0, 0, 0.85
+            rgba: 0, 0, 0, 0.6
         BoxShadow:
             pos: self.pos
             size: self.size
@@ -66,65 +103,67 @@ Builder.load_string(
             spread_radius: -10, -10
             border_radius: 10, 10, 10, 10
             blur_radius: 40 if not self.hovering else 80
-
-        Color:
-            rgba: 1,1,1,1
-        Rectangle:
-            size: self.size if not self.hovering else self.container_size
-            pos: self.pos if not self.hovering else (self.center[0] - self.container_size[0] / 2, self.center[1] - self.container_size[1] / 2)
-            source: "assets/textures/level_card.png"
-
-    AnchorLayout:
-        size_hint: 1,.7
-        anchor_x: "center"
-        anchor_y: "center"
-        Image:
-            id:level_card_bg
-            source: "assets/textures/level_preview_bg.png"
-            size_hint: 1,1
-            allow_stretch: True
-        Image:
-            id:level_card_preview
-            source: root.preview_path
-            size_hint: 1,1
-            allow_stretch: True
+  
+    Image:
+        id:level_card_bg
+        size_hint:1,1
+        source: "assets/textures/level_card.png"
+        fit_mode: "fill"
 
     BoxLayout:
-        id:level_card_info
-        size_hint: 1,.3
-        orientation:"horizontal"
-        spacing: "10dp"
-        padding: "10dp", "0dp", "10dp", "0dp"
-
-        Image:
-            id:level_card_difficulty
-            source: root.difficulty_image
-            size_hint: .2,1
-            allow_stretch: True
-
+        id: level_card_container
+        size_hint: 1,1
+        orientation: "vertical"
+        padding: "30dp", "10dp", "30dp", "10dp"
 
         AnchorLayout:
-            size_hint: .8,1
+            size_hint: 1,.7
             anchor_x: "center"
-            anchor_y: "center"            
+            anchor_y: "center"
             Image:
-                id:level_card_title_bg
-                source: "assets/textures/level_title_bg.png"
-                size_hint: .8,1
+                id:level_card_preview_bg
+                source: "assets/textures/level_preview_bg.png"
+                size_hint: 1,1
+                allow_stretch: True
+            Image:
+                id:level_card_preview
+                source: root.preview_path
+                size_hint: 1,1
                 allow_stretch: True
 
-            Label:
-                id:level_card_title
-                text: "Level "+str(root.level_no)
-                font_size: "30dp"
-                color: 1,1,1,1
-                font_name: "assets/fonts/main.ttf"
+        BoxLayout:
+            id:level_card_info
+            size_hint: 1,.3
+            orientation:"horizontal"
+            spacing: "10dp"
 
+            Image:
+                id:level_card_difficulty
+                source: root.difficulty_image
+                size_hint: .2,1
+                allow_stretch: True
+
+            AnchorLayout:
+                size_hint: .8,1
+                anchor_x: "center"
+                anchor_y: "center"            
+                Image:
+                    id:level_card_title_bg
+                    source: "assets/textures/level_title_bg.png"
+                    size_hint: .8,1
+                    fit_mode: "contain"
+
+                Label:
+                    id:level_card_title
+                    text: "Level "+str(root.level_no)
+                    font_size: "30dp"
+                    color: 1,1,1,1
+                    font_name: "assets/fonts/main.ttf"
 """
 )
 
 
-class LevelCard(BoxLayout, HoverBehavior):
+class LevelCard(AnchorLayout, HoverBehavior):
     """
     A class that represents a level card
     """
@@ -139,35 +178,22 @@ class LevelCard(BoxLayout, HoverBehavior):
     The size of the container
     """
 
-    level_no = None
+    level_no = NumericProperty(0)
     """
     The level number
     """
 
-    preview_path = None
+    preview_path = StringProperty(None)
     """
     The path to the preview image
     """
 
-    difficulty = None
+    difficulty = StringProperty(None)
     """
     The difficulty of the level
     """
 
-    difficulty_image = None
-
-    def __init__(self, level_no, preview_path, difficulty, *args, **kwargs):
-        self.level_no = level_no
-        self.preview_path = preview_path
-        self.difficulty = difficulty
-        if self.difficulty == "easy":
-            self.difficulty_image = "assets/textures/difficulty.png"
-        elif self.difficulty == "medium":
-            self.difficulty_image = "assets/textures/difficulty-1.png"
-        elif self.difficulty == "hard":
-            self.difficulty_image = "assets/textures/difficulty-2.png"
-        super().__init__(*args, **kwargs)
-        Window.bind(mouse_pos=self.on_mouse_pos)
+    difficulty_image = StringProperty(None)
 
     def on_enter(self, *args):
         """
@@ -175,26 +201,24 @@ class LevelCard(BoxLayout, HoverBehavior):
         """
         self.container_size = self.size
         self.hovering = True
-        Animation(
-            container_size=(self.size[0] + 20, self.size[1] + 20), duration=0.2
-        ).start(self)
+        anim = Animation(size_hint=(1.05, 1.05), duration=0.2)
+        anim.start(self.ids.level_card_bg)
+        anim.start(self.ids.level_card_container)
 
     def on_leave(self, *args):
         """
         triggers when the mouse leaves the widget
         """
-        anim = Animation(
-            container_size=(self.size[0], self.size[1]),
-            duration=0.2,
-        )
+        anim = Animation(size_hint=(1, 1), duration=0.2)
         anim.bind(on_complete=self.set_false)
-        anim.start(self)
+        anim.start(self.ids.level_card_bg)
+        anim.start(self.ids.level_card_container)
 
     def set_false(self, *args):
         self.hovering = False
 
 
-class LevelScreen(Screen):
+class LevelScreen(RelativeLayout):
     """
     This is the screen that shows the level select screen.
     """
@@ -203,40 +227,109 @@ class LevelScreen(Screen):
 
     level_handler = LevelHandler()
 
+    levels = []
+
+    count = 0
+
+    top_hidden = BooleanProperty(False)
+
+    previous_y = NumericProperty(1)
+
+    parent_screen = None
+
     def __init__(self, *args, **Kwargs):
-        super().__init__(*args, **Kwargs)
-        self.bg_texture = Image(source="assets/textures/start_bg.png").texture
-        self.bg_texture.wrap = "repeat"
+        self.bg_texture = Image(
+            source="assets/textures/start_bg.png", nocache=True
+        ).texture
         self.bg_texture.uvsize = (1, 10)
-        # cancel the scroll effect
-        self.ids.scroll_view.effect_cls = ScrollEffect
+        self.bg_texture.wrap = "repeat"
+        super().__init__(*args, **Kwargs)
+        # set the scroll effect
+        self.ids.recycle_view.effect_cls = ScrollEffect
+        # bind to the scroll of the recycele view
+        self.ids.recycle_view.bind(scroll_y=self.on_scroll)
         # Load the level cards
         self.load_levels()
 
-    def on_start():
-        pass
+    def on_start(self):
+        """
+        This function triggers when the screen starts
+        """
+        self.parent_screen = self.parent
+
+    def on_scroll(self, scroller, y):
+        """
+        This function triggers when the recyclerview scrolls.
+        It is used to hide the top bar when the user scrolls down
+        """
+        if y < self.previous_y:
+            if not self.top_hidden:
+                self.top_hidden = True
+                anim = Animation(pos_hint={"top": 1.2}, duration=1, t="in_out_circ")
+                anim.start(self.ids.level_screen_title)
+                anim1 = Animation(
+                    pos_hint={"center_x": -0.1}, duration=1, t="in_out_circ"
+                )
+                anim1.start(self.ids.back_button)
+                anim2 = Animation(
+                    pos_hint={"center_x": 1.1}, duration=1, t="in_out_circ"
+                )
+                anim2.start(self.ids.settings_button)
+        else:
+            if self.top_hidden:
+                self.top_hidden = False
+                anim = Animation(pos_hint={"top": 1}, duration=1, t="in_out_circ")
+                anim.start(self.ids.level_screen_title)
+                anim1 = Animation(
+                    pos_hint={"center_x": 0.1}, duration=1, t="in_out_circ"
+                )
+                anim1.start(self.ids.back_button)
+                anim2 = Animation(
+                    pos_hint={"center_x": 0.9}, duration=1, t="in_out_circ"
+                )
+                anim2.start(self.ids.settings_button)
+
+        if (y - self.previous_y > 0.1) or (self.previous_y - y > 0.1):
+            self.previous_y = round(y, 1)
+
+    def go_back(self):
+        """
+        This function is used to go back to the main menu
+        """
+        self.parent_screen.transition(self.back_screen_setup)
+
+    def back_screen_setup(self):
+        from ui.welcomescreen import WelcomeScreen
+
+        self.parent_screen.clear_widgets()
+        self.parent_screen.level_screen = None
+        self.parent_screen.welcome_screen = WelcomeScreen()
+        self.parent_screen.add_widget(self.parent_screen.welcome_screen)
+        self.parent_screen.welcome_screen.on_start()
+
+    def show_settings(self):
+        """
+        This function is used to show the settings screen
+        """
+        print("showing settings")
 
     def load_levels(self):
         """ "
         Loads the levels from the level generator.
         """
         self.level_handler.load_levels()
-        count = 0
-        # add the easy levels to the grid
-        for level in self.level_handler.easy_levels:
-            count += 1
-            self.ids.level_selector_grid.add_widget(
-                LevelCard(count, level.preview_path, level.difficulty)
+        for level in (
+            self.level_handler.easy_levels
+            + self.level_handler.medium_levels
+            + self.level_handler.hard_levels
+        ):
+            self.count += 1
+            self.levels.append(
+                {
+                    "level_no": self.count,
+                    "preview_path": level.preview_path,
+                    "difficulty": level.difficulty,
+                    "difficulty_image": level.difficulty_path,
+                }
             )
-        # add the medium levels to the grid
-        for level in self.level_handler.medium_levels:
-            count += 1
-            self.ids.level_selector_grid.add_widget(
-                LevelCard(count, level.preview_path, level.difficulty)
-            )
-        # add the hard levels to the grid
-        for level in self.level_handler.hard_levels:
-            count += 1
-            self.ids.level_selector_grid.add_widget(
-                LevelCard(count, level.preview_path, level.difficulty)
-            )
+        self.ids.recycle_view.data = self.levels

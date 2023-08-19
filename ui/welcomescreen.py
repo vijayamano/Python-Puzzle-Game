@@ -2,6 +2,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.lang import Builder
 from kivy.animation import Animation
 from ui.levelscreen import LevelScreen
+from kivy.uix.image import Image
 
 
 Builder.load_string(
@@ -15,7 +16,7 @@ Builder.load_string(
         Rectangle:
             pos: self.pos
             size: self.size
-            source: "assets/textures/start_bg.png"
+            texture: root.bg_texture
 
     Button:
         id: start_button
@@ -70,7 +71,14 @@ class WelcomeScreen(RelativeLayout):
     Stores a reference to this Screen's reference after its been added to the MainScreen.
     """
 
+    bg_texture = None
+
     def __init__(self, *args, **kwargs):
+        self.bg_texture = Image(
+            source="assets/textures/start_bg.png", nocache=True
+        ).texture
+        self.bg_texture.wrap = "repeat"
+        self.bg_texture.uvsize = (1, 1)
         super().__init__(*args, **kwargs)
 
     def on_start(self, *args, **kwargs):
@@ -106,4 +114,5 @@ class WelcomeScreen(RelativeLayout):
         """
         self.parent_screen.remove_widget(self)
         self.parent_screen.level_screen = LevelScreen()
-        self.parent_screen.add_widget(self.parent_screen.level_screen)
+        self.parent_screen.add_widget(self.parent_screen.level_screen, 0)
+        self.parent_screen.level_screen.on_start()

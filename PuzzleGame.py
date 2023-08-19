@@ -14,6 +14,7 @@ Builder.load_string(
 #:import Window kivy.core.window.Window
 
 <MainScreen>:
+    name: "main_screen"
     id: main_screen
     canvas.before:
         StencilPush
@@ -61,11 +62,10 @@ class MainScreen(Screen):
                 Window.size[0] + Window.size[0] / 1.5,
                 Window.size[0] + Window.size[0] / 1.5,
             ),
-            duration=0.5,
+            duration=1,
             t="in_out_circ",
         )
         anim.start(self)
-        print("ran")
 
 
 class PuzzleGame(App):
@@ -90,10 +90,10 @@ class PuzzleGame(App):
         """
         self.running = True
         self.main_screen = MainScreen()
-        welcome_screen = WelcomeScreen()
-        self.main_screen.add_widget(welcome_screen)
-        welcome_screen.on_start()
-        inspector.create_inspector(Window, welcome_screen)
+        self.welcome_screen = WelcomeScreen()
+        self.main_screen.add_widget(self.welcome_screen)
+        self.welcome_screen.on_start()
+        inspector.create_inspector(Window, self.welcome_screen)
         return self.main_screen
 
     def on_start(self):

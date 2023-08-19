@@ -50,6 +50,7 @@ class LevelHandler:
                     "easy",
                     level,
                     "assets/levels/easy/" + str(easy.index(level) + 1) + ".png",
+                    "assets/textures/easy.png",
                 )
             )
         # load the medium.json and convert to level classes
@@ -60,6 +61,7 @@ class LevelHandler:
                     "medium",
                     level,
                     "assets/levels/medium/" + str(medium.index(level) + 1) + ".png",
+                    "assets/textures/medium.png",
                 )
             )
         # load the hard.json and convert to level classes
@@ -70,5 +72,6 @@ class LevelHandler:
                     "hard",
                     level,
                     "assets/levels/hard/" + str(hard.index(level) + 1) + ".png",
+                    "assets/textures/hard.png",
                 )
             )
