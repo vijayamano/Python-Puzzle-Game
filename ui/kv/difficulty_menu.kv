@@ -1,0 +1,41 @@
+#:kivy 1.10.0
+
+<DifficultyMenu>:
+    opacity:0
+    size_hint: .3, .5
+    background:"assets/textures/difficulty_level_bg.png"
+    overlay_color: 0, 0, 0, 0
+
+    FloatLayout:
+        size_hint:1,1
+        pos_hint:{"center_x":.5, "center_y":.5}
+
+        DifficultyButton:
+            id: easy_button
+            source: "assets/textures/easy_level_button_bg.png"
+            pos_hint: {"center_x": .5, "center_y": .8}
+
+        DifficultyButton:
+            id: medium_button
+            source: "assets/textures/medium_level_button_bg.png"
+            pos_hint: {"center_x": .5, "center_y": .5}
+
+        DifficultyButton:
+            id: hard_button
+            source: "assets/textures/hard_level_button_bg.png"
+            pos_hint: {"center_x": .5, "center_y": .2}
+
+
+<DifficultyButton>:
+    fit_mode: "fill"
+    canvas.before:
+        Color:
+            rgba: (.8, 0, 0, 0.8) if self.hovering else (0, 0, 0, 0.5)
+        BoxShadow:
+            pos: self.pos
+            size: self.size
+            offset: 0, -3
+            spread_radius: -3, -3
+            border_radius: 10, 10, 10, 10
+            blur_radius: 60 if self.hovering else 40 if self.state else 20
+    size_hint: .3, .1

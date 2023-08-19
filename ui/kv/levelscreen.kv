@@ -1,7 +1,8 @@
 #:kivy 1.10.0
+#: import ew kivy.uix.effectwidget
 <LevelScreen>:
     name: "level_screen"
-    
+    effects: ew.HorizontalBlurEffect(size=root.blur_amount), ew.VerticalBlurEffect(size=root.blur_amount)
     RecycleView:
         viewclass: "LevelCard"
         id: recycle_view
@@ -12,7 +13,7 @@
                 Rectangle:
                     size: self.size
                     pos: self.pos
-                    texture: root.bg_texture
+                    texture: self.parent.parent.bg_texture
             default_size: None, dp(400)
             default_size_hint: 1, None
             padding: "80dp", "150dp", "80dp", "80dp"

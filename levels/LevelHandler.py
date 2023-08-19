@@ -8,25 +8,31 @@ class LevelHandler:
     the level solver in order to produce a viable solution for the generated level
     """
 
-    current_level = []
+    current_level = None
     """
     A list of the various shapes that represent the current level being played.
     """
 
-    easy_levels = []
+    easy_levels = None
     """
     Contains all the pre-generated easy levels
     """
 
-    medium_levels = []
+    medium_levels = None
     """
     Contains all the pre-generated medium levels
     """
 
-    hard_levels = []
+    hard_levels = None
     """
     Contains all the pre-generated hard levels
     """
+
+    def __init__(self):
+        self.current_level = []
+        self.easy_levels = []
+        self.medium_levels = []
+        self.hard_levels = []
 
     def generate_level(difficulty):
         """

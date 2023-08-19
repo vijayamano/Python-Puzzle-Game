@@ -4,7 +4,7 @@ from kivy.core.window import Window
 from ui.welcomescreen import WelcomeScreen
 from kivy.lang.builder import Builder
 from kivy.properties import ListProperty
-from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import ScreenManager
 from kivy.animation import Animation
 from functools import partial
 from kivy.modules import inspector
@@ -12,9 +12,11 @@ from kivy.modules import inspector
 Builder.load_string(
     """
 #:import Window kivy.core.window.Window
+#:import FadeTransition kivy.uix.screenmanager.FadeTransition
+ 
 
 <MainScreen>:
-    name: "main_screen"
+    transition: FadeTransition()
     id: main_screen
     canvas.before:
         StencilPush
@@ -25,11 +27,12 @@ Builder.load_string(
     canvas.after:
         StencilUnUse
         StencilPop
+    
 """
 )
 
 
-class MainScreen(Screen):
+class MainScreen(ScreenManager):
     transition_size = ListProperty([0, 0])
 
     def __init__(self, *args, **kwargs):
@@ -40,7 +43,7 @@ class MainScreen(Screen):
             Window.size[0] + Window.size[0] / 1.5,
         )
 
-    def transition(self, callback):
+    def init_transition(self, callback):
         """
         Causes a transition effect. The transition effect is a circle that expands from the edges in and then shrinks
         The callback function is triggered after the first animation is complete
@@ -90,10 +93,6 @@ class PuzzleGame(App):
         """
         self.running = True
         self.main_screen = MainScreen()
-        self.welcome_screen = WelcomeScreen()
-        self.main_screen.add_widget(self.welcome_screen)
-        self.welcome_screen.on_start()
-        inspector.create_inspector(Window, self.welcome_screen)
         return self.main_screen
 
     def on_start(self):
@@ -101,6 +100,7 @@ class PuzzleGame(App):
         Runs as soon as the game launches
         """
         Window.size = (1280, 720)
+        self.main_screen.switch_to(WelcomeScreen())
 
         # def temporary_display(self, temp, canvas):
         #     pygame.display.update()

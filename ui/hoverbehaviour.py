@@ -1,5 +1,6 @@
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.core.window import Window
+import math
 
 
 class HoverBehavior(object):

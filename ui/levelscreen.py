@@ -11,16 +11,91 @@ from kivy.effects.scroll import ScrollEffect
 from kivy.animation import Animation
 from levels.levelhandler import LevelHandler
 from ui.hoverbehaviour import HoverBehavior
-from kivy.uix.relativelayout import RelativeLayout
+from kivy.uix.screenmanager import Screen
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.modalview import ModalView
-
+from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.effectwidget import EffectWidget
 
 Builder.load_file("ui/kv/levelscreen.kv")
 Builder.load_file("ui/kv/levelcard.kv")
+Builder.load_file("ui/kv/difficulty_menu.kv")
 
 
-class LevelCard(AnchorLayout, HoverBehavior):
+class DifficultyMenu(ModalView):
+    parent_screen = ObjectProperty(None)
+    """
+    Stores the parent screen
+    """
+
+    closing = False
+
+    def on_dismiss(self):
+        """
+        This function triggers when the modal view is dismissed.
+        It is used to animate the blur effect back to normal
+        """
+        Animation(blur_amount=0, duration=0.3).start(self.parent_screen)
+        if not self.closing:
+            anim = Animation(opacity=0, duration=0.3)
+            anim.bind(on_complete=self.close)
+            anim.start(self)
+            self.closing = True
+            return True
+        else:
+            return super().on_dismiss()
+
+    def close(self, *args):
+        self.dismiss()
+
+    def on_open(self):
+        """
+        This function triggers when the modal view is opened.
+        It is used to animate all the widgets into place
+        """
+        # aniamte the opacity of the popup
+        Animation(opacity=1, size_hint=(0.6, 0.8), duration=0.5, t="out_back").start(
+            self
+        )
+        # aniamte the size of the three buttons
+        anim = Animation(size_hint=(0.6, 0.2), duration=0.5, t="out_back")
+        anim.start(self.ids.easy_button)
+        anim.start(self.ids.medium_button)
+        anim.start(self.ids.hard_button)
+        return super().on_open()
+
+
+class DifficultyButton(ButtonBehavior, Image, HoverBehavior):
+    """
+    This class represents the difficulty buttons that appear
+    when selecting endless mode. They where created as a seperate
+    class due to the requirement of the hover effect
+    """
+
+    hovering = BooleanProperty(False)
+
+    def on_enter(self, *args):
+        """
+        triggers when the mouse enters the widget.
+        Used to raise the widget
+        """
+        self.hovering = True
+        Animation(size_hint=(0.63, 0.22), duration=0.2).start(self)
+
+    def on_leave(self, *args):
+        """
+        triggers when the mouse leaves the widget.
+        Used to lower the widget
+        """
+        anim = Animation(size_hint=(0.6, 0.2), duration=0.2)
+        anim.bind(on_complete=self.set_false)
+        anim.start(self)
+
+    def set_false(self, *args):
+        self.hovering = False
+
+
+class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
     """
     A class that represents a level card
     """
@@ -51,6 +126,17 @@ class LevelCard(AnchorLayout, HoverBehavior):
     """
 
     difficulty_image = StringProperty(None)
+    """
+    The path to the difficulty image
+    """
+
+    parent_container = ObjectProperty(None)
+    """
+    The parent container of the level card
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def on_enter(self, *args):
         """
@@ -61,6 +147,15 @@ class LevelCard(AnchorLayout, HoverBehavior):
         anim = Animation(size_hint=(1.05, 1.05), duration=0.2)
         anim.start(self.ids.level_card_bg)
         anim.start(self.ids.level_card_container)
+
+    def on_press(self):
+        """
+        triggers when the widget is pressed
+        """
+        if self.level_no == "Endless":
+            self.parent_container.show_difficulty()
+        else:
+            print("To implement")
 
     def on_leave(self, *args):
         """
@@ -75,34 +170,46 @@ class LevelCard(AnchorLayout, HoverBehavior):
         self.hovering = False
 
 
-class DifficultyMenu(ModalView):
-    pass
-
-
-class LevelScreen(RelativeLayout):
+class LevelScreen(EffectWidget, Screen):
     """
     This is the screen that shows the level select screen.
     """
 
-    bg_texture = ObjectProperty(None)
+    bg_texture = None
+    """
+    The texture of the background
+    """
 
-    level_handler = LevelHandler()
-
-    levels = []
+    level_handler = None
+    """
+    The level handler object
+    """
 
     count = 0
+    """
+    internal variable used to keep count of the number of levels
+    """
 
     top_hidden = BooleanProperty(False)
+    """
+    Represents whether the top bar is hidden
+    """
 
     previous_y = NumericProperty(1)
+    """
+    Stores the previous y value of the scroll
+    """
 
-    parent_screen = None
+    blur_amount = NumericProperty(0.0)
+    """
+    used to animate the blur affect when showing difficulty menu
+    """
 
     def __init__(self, *args, **Kwargs):
         self.bg_texture = Image(
-            source="assets/textures/start_bg.png", nocache=True
+            source="assets/textures/level_bg.png", nocache=True
         ).texture
-        self.bg_texture.uvsize = (1, 10)
+        self.bg_texture.uvsize = (1, 20)
         self.bg_texture.wrap = "repeat"
         super().__init__(*args, **Kwargs)
         # set the scroll effect
@@ -111,12 +218,6 @@ class LevelScreen(RelativeLayout):
         self.ids.recycle_view.bind(scroll_y=self.on_scroll)
         # Load the level cards
         self.load_levels()
-
-    def on_start(self):
-        """
-        This function triggers when the screen starts
-        """
-        self.parent_screen = self.parent
 
     def on_scroll(self, scroller, y):
         """
@@ -157,16 +258,12 @@ class LevelScreen(RelativeLayout):
         """
         This function is used to go back to the main menu
         """
-        self.parent_screen.transition(self.back_screen_setup)
+        self.manager.init_transition(self.back_screen_setup)
 
     def back_screen_setup(self):
         from ui.welcomescreen import WelcomeScreen
 
-        self.parent_screen.clear_widgets()
-        self.parent_screen.level_screen = None
-        self.parent_screen.welcome_screen = WelcomeScreen()
-        self.parent_screen.add_widget(self.parent_screen.welcome_screen)
-        self.parent_screen.welcome_screen.on_start()
+        self.manager.switch_to(WelcomeScreen())
 
     def show_settings(self):
         """
@@ -178,14 +275,17 @@ class LevelScreen(RelativeLayout):
         """ "
         Loads the levels from the level generator.
         """
+        self.level_handler = LevelHandler()
         self.level_handler.load_levels()
         # add the inifinite level card as the first card in the list
-        self.levels.append(
+        levels = []
+        levels.append(
             {
                 "level_no": "Endless",
                 "preview_path": "assets/textures/infinite_preview.png",
                 "difficulty": "∞",
                 "difficulty_image": "assets/textures/infinite.png",
+                "parent_container": self,
             }
         )
         for level in (
@@ -194,17 +294,22 @@ class LevelScreen(RelativeLayout):
             + self.level_handler.hard_levels
         ):
             self.count += 1
-            self.levels.append(
+            levels.append(
                 {
                     "level_no": "Level " + str(self.count),
                     "preview_path": level.preview_path,
                     "difficulty": level.difficulty,
                     "difficulty_image": level.difficulty_path,
+                    "parent_container": self,
                 }
             )
-        self.ids.recycle_view.data = self.levels
+        self.ids.recycle_view.data = levels
 
     def show_difficulty(self):
         """
         Opens up a modal dialogue for picking difficulty
         """
+        # animate the blur effect
+        Animation(blur_amount=10, duration=0.3).start(self)
+        difficulty_menu = DifficultyMenu(parent_screen=self)
+        difficulty_menu.open()
