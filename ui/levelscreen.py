@@ -10,6 +10,7 @@ from kivy.uix.image import Image
 from kivy.effects.scroll import ScrollEffect
 from kivy.animation import Animation
 from levels.levelhandler import LevelHandler
+from ui.GameScreen import GameScreen
 from ui.hoverbehaviour import HoverBehavior
 from kivy.uix.screenmanager import Screen
 from kivy.uix.anchorlayout import AnchorLayout
@@ -155,7 +156,7 @@ class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
         if self.level_no == "Endless":
             self.parent_container.show_difficulty()
         else:
-            print("To implement")
+            self.parent_container.select_level()
 
     def on_leave(self, *args):
         """
@@ -313,3 +314,18 @@ class LevelScreen(EffectWidget, Screen):
         Animation(blur_amount=10, duration=0.3).start(self)
         difficulty_menu = DifficultyMenu(parent_screen=self)
         difficulty_menu.open()
+
+    def select_level(self):
+        """
+        Triggered when an user selects a level
+        """
+        self.manager.init_transition(self.next_screen)
+
+    def next_screen(self):
+        """
+        Transition to the next screen
+        This function is called after the first animation plays
+        and before the second animation plays
+        """
+        self.manager.switch_to(GameScreen())
+ 

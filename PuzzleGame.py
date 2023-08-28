@@ -93,6 +93,7 @@ class PuzzleGame(App):
         """
         self.running = True
         self.main_screen = MainScreen()
+        inspector.create_inspector(Window, self.main_screen)
         return self.main_screen
 
     def on_start(self):

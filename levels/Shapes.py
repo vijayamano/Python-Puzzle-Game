@@ -543,14 +543,12 @@ class Rhombus(Shape):
         this_edge = random.choice(list(self.free_edges.keys()))
         that_edge = random.choice(list(shape.free_edges.keys()))
         # delete the edge from the free edges of that shape
-        # that_edge = 2  # TODO: remove this line
         del shape.free_edges[that_edge]
         if shape.shape_type == "rhombus" or shape.shape_type == "square":
             # We are joining two rhombus and thus can only join on the outer edge
             match that_edge:
                 case 0:
                     # the top edge
-                    print("Adding to top edge")
                     self.p4 = shape.p1
                     self.p3 = shape.p2
                     self.p1 = self._calculate_other_vertex(self.p3, self.p4, -100, 1)
@@ -561,7 +559,6 @@ class Rhombus(Shape):
                     del self.free_edges[2]
 
                 case 1:
-                    print("Adding to right edge")
                     # the right edge
                     self.p1 = shape.p2
                     self.p4 = shape.p3
@@ -577,7 +574,6 @@ class Rhombus(Shape):
                     del self.free_edges[3]
 
                 case 2:
-                    print("Adding to bottom edge")
                     # the bottom edge
                     self.p2 = shape.p3
                     self.p1 = shape.p4
@@ -589,7 +585,6 @@ class Rhombus(Shape):
                     del self.free_edges[0]
 
                 case 3:
-                    print("Adding to left edge")
                     # the left edge
                     self.p3 = shape.p4
                     self.p2 = shape.p1
@@ -604,7 +599,6 @@ class Rhombus(Shape):
             if shape.shape_type == "triangle":
                 match that_edge:
                     case 0:
-                        print("Adding a rhombus to the left of a triangle")
                         # left edge
                         self.p2 = shape.p2
                         self.p3 = shape.p1
@@ -612,7 +606,6 @@ class Rhombus(Shape):
                             self.p2, self.p3, -100, type=1
                         )
                         if self._check_if_close(temp, shape.p3):
-                            print("there is a collision")
                             self.p4 = self._calculate_other_vertex(
                                 self.p2, self.p3, 100, 1
                             )
@@ -620,7 +613,6 @@ class Rhombus(Shape):
                                 self.p2, self.p3, 100
                             )
                         else:
-                            print("no collision")
                             self.p4 = temp
                             self.p1 = self._calculate_other_vertex(
                                 self.p2, self.p3, -100, type=0
@@ -631,13 +623,11 @@ class Rhombus(Shape):
                         del self.free_edges[1]
 
                     case 1:
-                        print("Adding a rhombus to the right of a triangle")
                         # right edge
                         self.p1 = shape.p2
                         self.p4 = shape.p3
                         temp = self._calculate_other_vertex(self.p1, self.p4, 100, 0, 1)
                         if self._check_if_close(temp, shape.p1):
-                            print("there is a collision")
                             self.p2 = self._calculate_other_vertex(
                                 self.p1, self.p4, -100, type=0, notComp=1
                             )
@@ -645,7 +635,6 @@ class Rhombus(Shape):
                                 self.p1, self.p4, -100, type=1, notComp=1
                             )
                         else:
-                            print("no collision")
                             self.p2 = temp
                             self.p3 = self._calculate_other_vertex(
                                 self.p1, self.p4, 100, type=1, notComp=1
@@ -656,7 +645,6 @@ class Rhombus(Shape):
                         del self.free_edges[3]
 
                     case 2:
-                        print("Adding a rhombus to the bottom of a triangle")
                         # bottom edge
                         self.p1 = shape.p1
                         self.p2 = shape.p3
@@ -664,7 +652,6 @@ class Rhombus(Shape):
                             self.p1, self.p2, 100, type=0, notComp=0
                         )
                         if self._check_if_close(temp, shape.p2):
-                            print("there is a collision")
                             self.p3 = self._calculate_other_vertex(
                                 self.p1, self.p2, -100, type=1, notComp=0
                             )
@@ -672,7 +659,6 @@ class Rhombus(Shape):
                                 self.p1, self.p2, -100, type=0, notComp=0
                             )
                         else:
-                            print("no collision")
                             self.p4 = temp
                             self.p3 = self._calculate_other_vertex(
                                 self.p1, self.p2, 100, type=1, notComp=0

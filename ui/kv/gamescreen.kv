@@ -1,0 +1,12 @@
+#:kivy 1.10.0
+
+<GameScreen>:
+    canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            texture: root.bg_texture
+
+    ClayJar:
+        id:clay_jar
+        pos_hint: {"left": 0, "center_y": 0.2}
