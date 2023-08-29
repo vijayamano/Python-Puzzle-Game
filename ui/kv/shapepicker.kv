@@ -1,0 +1,36 @@
+#:kivy 1.0.9
+<ShapePicker>:
+    canvas:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            size:self.size
+            pos:self.pos
+            texture: self.bg_texture
+
+    orientation: 'horizontal'
+    padding: "20dp", "20dp", "20dp", "60dp"
+    spacing: "40dp"
+    
+    ShapeButton:
+        id: rectangle
+        source: "assets/textures/rectangle_normal.png"
+        size_hint: .25, 1
+
+    ShapeButton:
+        id: circle
+        source: "assets/textures/circle_normal.png"
+        size_hint: .25, 1
+
+    ShapeButton:
+        id: triangle
+        source: "assets/textures/triangle_normal.png"
+        size_hint: .25, 1
+
+    ShapeButton:
+        id : rhombus
+        source: "assets/textures/rhombus_normal.png"
+        size_hint: .25, 1
+
+
+    

@@ -4,26 +4,11 @@ from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from ui.cursorobject import CursorObject
+from ui.shapepicker import ShapePicker
 from kivy.animation import Animation
 
 Builder.load_file("ui/kv/gamescreen.kv")
 Builder.load_file("ui/kv/clayjar.kv")
-
-
-class ColorPicker(RelativeLayout):
-    """
-    This class is used to represent the color picker containers that are
-    placed on the screen. This class is responsivle for handling the
-    current color that has been picked and updating the clay based on this
-    information
-    """
-
-    current_color = None
-    """
-    RGB value of the current color that has been picked
-    """
-
-    available_colors = []
 
 
 class ClayJar(ButtonBehavior, RelativeLayout):
@@ -111,11 +96,14 @@ class GameScreen(Screen):
         self.bg_texture.wrap = "repeat"
         self.name = "game_screen"
         super().__init__(*args, **kwargs)
+        # create a cursor object and add it to screen
         self.cursor_object = CursorObject()
         self.add_widget(self.cursor_object)
-        self.cursor_object.pos = (1280, 0)
+        # set the clay jar's cursor picker
         self.ids.clay_jar.cursor_object = self.cursor_object
         self.ids.clay_jar.current_clay_amount = 10
+        # get the shape picker cursor object
+        self.ids.shape_picker.cursor_object = self.cursor_object
 
     def on_enter(self, *aargs, **kwargs):
         print("hello")

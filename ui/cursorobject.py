@@ -70,18 +70,30 @@ class CursorObject(Image):
             self.carrying_clay = False
             self.colored = False
             # set the texture display to nothing
-            self.source = ""
-            self.opacity = 0
-            self.should_display_texture = False
+            self.remove_texture()
             return 0
         # the player is not carrying clay so we pick it up
         self.carrying_clay = True
         self.colored = False
         # display the clay on top of the mouse
-        self.opacity = 1
-        self.source = "assets/textures/clay_cursor.png"
-        self.should_display_texture = True
+        self.show_texture()
         return 1
+
+    def remove_texture(self):
+        """
+        Removes the texture from the cursor
+        """
+        self.source = ""
+        self.opacity = 0
+        self.should_display_texture = False
+
+    def show_texture(self):
+        """
+        Shows the texture on the cursor
+        """
+        self.source = "assets/textures/clay_cursor.png"
+        self.opacity = 1
+        self.should_display_texture = True
 
     def show_popup(self, title, content):
         """
