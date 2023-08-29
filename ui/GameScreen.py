@@ -113,6 +113,7 @@ class GameScreen(Screen):
         super().__init__(*args, **kwargs)
         self.cursor_object = CursorObject()
         self.add_widget(self.cursor_object)
+        self.cursor_object.pos = (1280, 0)
         self.ids.clay_jar.cursor_object = self.cursor_object
         self.ids.clay_jar.current_clay_amount = 10
 

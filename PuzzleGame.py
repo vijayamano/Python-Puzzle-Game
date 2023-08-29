@@ -8,6 +8,7 @@ from kivy.uix.screenmanager import ScreenManager
 from kivy.animation import Animation
 from functools import partial
 from kivy.modules import inspector
+from kivy.metrics import dp
 
 Builder.load_string(
     """
@@ -100,7 +101,6 @@ class PuzzleGame(App):
         """
         Runs as soon as the game launches
         """
-        Window.size = (1280, 720)
         self.main_screen.switch_to(WelcomeScreen())
 
         # def temporary_display(self, temp, canvas):

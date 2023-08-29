@@ -4,7 +4,7 @@ from kivy.uix.popup import Popup
 from kivy.lang.builder import Builder
 from kivy.core.window import Window
 from kivy.uix.image import Image
-
+from kivy.metrics import dp
 
 Builder.load_file("ui/kv/popupbase.kv")
 Builder.load_file("ui/kv/cursorobject.kv")
@@ -42,16 +42,16 @@ class CursorObject(Image):
         # bind a function to the cursor position
         Window.bind(mouse_pos=self.on_mouse_pos)
         super().__init__(**kwargs)
+        self.opacity = 0
 
     def on_mouse_pos(self, window, pos):
         """
         Called when the mouse moves
         """
         # check if the cursor is carrying clay
-        print(self.carrying_clay)
         if self.carrying_clay:
             # move the cursor texture to the mouse position
-            self.pos = (pos[0] - 25, pos[1] - 25)
+            self.center = dp(pos[0]), dp(pos[1])
 
     def pickup_clay(self):
         """
@@ -69,15 +69,17 @@ class CursorObject(Image):
             # we drop the clay back inside the pot
             self.carrying_clay = False
             self.colored = False
-            # set the textrue display to nothing
-            self.texture = None
+            # set the texture display to nothing
+            self.source = ""
+            self.opacity = 0
             self.should_display_texture = False
             return 0
         # the player is not carrying clay so we pick it up
         self.carrying_clay = True
         self.colored = False
         # display the clay on top of the mouse
-        self.source = "assets/texture/clay_cursor.png"
+        self.opacity = 1
+        self.source = "assets/textures/clay_cursor.png"
         self.should_display_texture = True
         return 1
 

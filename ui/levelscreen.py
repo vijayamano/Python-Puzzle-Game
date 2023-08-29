@@ -9,7 +9,7 @@ from kivy.properties import (
 from kivy.uix.image import Image
 from kivy.effects.scroll import ScrollEffect
 from kivy.animation import Animation
-from levels.levelhandler import LevelHandler
+from levels.LevelHandler import LevelHandler
 from ui.GameScreen import GameScreen
 from ui.hoverbehaviour import HoverBehavior
 from kivy.uix.screenmanager import Screen
@@ -328,4 +328,3 @@ class LevelScreen(EffectWidget, Screen):
         and before the second animation plays
         """
         self.manager.switch_to(GameScreen())
- 

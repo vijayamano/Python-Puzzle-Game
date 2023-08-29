@@ -1,6 +1,7 @@
 from kivy.properties import BooleanProperty, ObjectProperty
 from kivy.core.window import Window
 import math
+from kivy.metrics import dp
 
 
 class HoverBehavior(object):
@@ -39,6 +40,7 @@ class HoverBehavior(object):
         if not self.get_root_window():
             return  # do proceed if I'm not displayed <=> If have no parent
         pos = args[1]
+        pos = dp(pos[0]), dp(pos[1])
         # Next line to_widget allow to compensate for relative layout
         inside = self.collide_point(*self.to_widget(*pos))
         if self.hovered == inside:
