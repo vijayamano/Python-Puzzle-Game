@@ -13,6 +13,11 @@ class LevelHandler:
     A list of the various shapes that represent the current level being played.
     """
 
+    current_difficulty = None
+    """
+    The current difficulty of the level being played
+    """
+
     easy_levels = None
     """
     Contains all the pre-generated easy levels
@@ -81,3 +86,19 @@ class LevelHandler:
                     "assets/textures/hard.png",
                 )
             )
+
+    def get_preview_path(self):
+        """
+        Returns the path of the preview image of the current level
+        """
+        match self.current_difficulty:
+            case 0:
+                index = int(self.current_level)
+                return self.easy_levels[index - 1].preview_path
+            case 1:
+                index = int(self.current_level) - 20
+                return self.medium_levels[index - 1].preview_path
+            case 2:
+                index = int(self.current_level) - 40
+                print(index)
+                return self.hard_levels[index - 1].preview_path

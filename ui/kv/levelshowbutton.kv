@@ -1,0 +1,17 @@
+#:kivy 1.10.0
+
+<LevelShowButton>:
+    anchor_x: 'center'
+    anchor_y: 'center'
+
+    Image:
+        source: 'assets/textures/show_level_button.png'
+        size: self.size
+        pos: self.pos
+        fit_mode: "fill"
+
+    Label:
+        text: "View level " + str(self.parent.parent.show_times) + " times"
+        font_size: "30dp"
+        color: 1,1,1,1
+        font_name: "assets/fonts/main.ttf"

@@ -1,3 +1,4 @@
+from functools import partial
 from kivy.lang.builder import Builder
 from kivy.properties import (
     ObjectProperty,
@@ -154,9 +155,9 @@ class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
         triggers when the widget is pressed
         """
         if self.level_no == "Endless":
-            self.parent_container.show_difficulty()
+            self.parent_container.show_difficulty("infinite")
         else:
-            self.parent_container.select_level()
+            self.parent_container.select_level(self.level_no)
 
     def on_leave(self, *args):
         """
@@ -315,16 +316,24 @@ class LevelScreen(EffectWidget, Screen):
         difficulty_menu = DifficultyMenu(parent_screen=self)
         difficulty_menu.open()
 
-    def select_level(self):
+    def select_level(self, level_no):
         """
         Triggered when an user selects a level
         """
-        self.manager.init_transition(self.next_screen)
+        self.manager.init_transition(partial(self.next_screen, level_no))
 
-    def next_screen(self):
+    def next_screen(self, level_no):
         """
         Transition to the next screen
         This function is called after the first animation plays
         and before the second animation plays
         """
-        self.manager.switch_to(GameScreen())
+        temp = level_no.split(" ")[1]
+        self.level_handler.current_level = temp
+        if int(temp) <= 20:
+            self.level_handler.current_difficulty = 0
+        elif int(temp) <= 40:
+            self.level_handler.current_difficulty = 1
+        else:
+            self.level_handler.current_difficulty = 2
+        self.manager.switch_to(GameScreen(level_handler=self.level_handler))

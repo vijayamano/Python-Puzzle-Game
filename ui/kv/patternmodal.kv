@@ -1,0 +1,64 @@
+#:kivy 1.10.0
+<PatternModal>:
+    size_hint: .5,.9
+    overlay_color: 0,0,0,.5
+    background: "assets/textures/level_preview_modal_bg.png"
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: "30dp", "30dp", "30dp", "60dp"
+        spacing: "30dp"
+
+        AnchorLayout:
+            size_hint: 1,.1
+            anchor_x: "center"
+            anchor_y: "center"            
+            Image:
+                id:level_preview_title_bg
+                source: "assets/textures/level_title_bg.png"
+                size_hint: .8,1
+                fit_mode: "contain"
+
+            Label:
+                id:level_preview_title
+                text: "Level "+ root.level_no
+                font_size: "30dp"
+                color: 1,1,1,1
+                font_name: "assets/fonts/main.ttf"
+
+        AnchorLayout:
+            size_hint: 1,.7
+            anchor_x: "center"
+            anchor_y: "center"
+            Image:
+                id:level_preview_bg
+                source: "assets/textures/level_preview_bg.png"
+                size_hint: 1,1
+                allow_stretch: True
+            Image:
+                id:level_preview_image
+                source: root.preview_path
+                size_hint: 1,1
+                allow_stretch: True
+                opacity: 0.7
+                color: .9,.7,.7,.7
+
+        Button:
+            id: done_button
+            pos_hint: {"center_x": 0.5, "center_y": 0}
+            background_normal: "assets/textures/play_action_normal.png"
+            background_down: "assets/textures/play_action_normal.png"
+            size_hint: (0.3, 0.09) if self.state == "normal" else (0.29, 0.1)
+            border: 10, 10, 10, 10
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.85
+                BoxShadow:
+                    pos: self.pos
+                    size: self.size
+                    offset: 0, -5
+                    spread_radius: -10, -10
+                    border_radius: 10, 10, 10, 10
+                    blur_radius: 40 if self.state == "normal" else 20
+
+        

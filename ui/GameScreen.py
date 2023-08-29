@@ -1,3 +1,4 @@
+from ast import pattern
 from kivy.uix.screenmanager import Screen
 from kivy.lang.builder import Builder
 from kivy.uix.image import Image
@@ -6,7 +7,12 @@ from kivy.uix.behaviors import ButtonBehavior
 from ui.cursorobject import CursorObject
 from ui.shapepicker import ShapePicker
 from ui.colorpicker import ClayColorPicker
+from ui.workspace import WorkSpace
+from ui.levelshowbutton import LevelShowButton
+from ui.patternmodal import PatternModal
 from kivy.animation import Animation
+from kivy.properties import NumericProperty
+
 
 Builder.load_file("ui/kv/gamescreen.kv")
 Builder.load_file("ui/kv/clayjar.kv")
@@ -89,13 +95,32 @@ class GameScreen(Screen):
     Represents the cursor and details about the object that is being dragged with it
     """
 
-    def __init__(self, *args, **kwargs):
+    show_times = NumericProperty(0)
+    """
+    The number of times the level preview can be shown to the player
+    """
+
+    level_handler = None
+    """
+    The level handler object that is used to load the correct level or
+    generate a new level
+    """
+
+    def __init__(self, level_handler, *args, **kwargs):
+        self.level_handler = level_handler
         self.bg_texture = Image(
             source="assets/textures/start_bg.png", nocache=True
         ).texture
         self.bg_texture.uvsize = (1, 2)
         self.bg_texture.wrap = "repeat"
         self.name = "game_screen"
+        # set show times based on difficulty
+        if self.level_handler.current_difficulty == 0:
+            self.show_times = 3
+        elif self.level_handler.current_difficulty == 1:
+            self.show_times = 5
+        else:
+            self.show_times = 5
         super().__init__(*args, **kwargs)
         # create a cursor object and add it to screen
         self.cursor_object = CursorObject()
@@ -109,6 +134,23 @@ class GameScreen(Screen):
         self.ids.color_picker.cursor_object = self.cursor_object
         # set the shape picker reference of the color picker
         self.ids.color_picker.shape_picker = self.ids.shape_picker
+        # bind the level show button to our function
+        self.ids.level_show_button.bind(on_release=self.show_level)
 
-    def on_enter(self, *aargs, **kwargs):
-        print("hello")
+    def show_level(self, *args):
+        """
+        Shows the modal view of the level preview and reduces the
+        total number of previews available.
+        """
+        if self.show_times > 0:
+            self.show_times -= 1
+            self.ids.level_show_button.show_times = self.show_times
+            pattern_modal = PatternModal(
+                level_no=self.level_handler.current_level,
+                preview_path=self.level_handler.get_preview_path(),
+            )
+            pattern_modal.open()
+        else:
+            self.cursor_object.show_popup(
+                "Out of Luck!", "You have no more previews left!"
+            )
