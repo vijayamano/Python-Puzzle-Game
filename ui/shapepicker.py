@@ -5,7 +5,6 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.behaviors import ButtonBehavior
 
 Builder.load_file("ui/kv/shapepicker.kv")
-Builder.load_file("ui/kv/shapebutton.kv")
 
 
 class ShapeButton(ButtonBehavior, Image):
@@ -27,12 +26,21 @@ class ShapeButton(ButtonBehavior, Image):
                 return super().on_press()
             else:
                 # the player is not carrying clay so we attach the clay to the cursor
+                # we check to see if the clay is colored.
+                if self.parent.cursor_object.colored:
+                    # the clay is colored so we switch over to rendering the colored shape
+                    print("trrying to pickup a colored shape")
+                    return super().on_press()
                 self.parent.cursor_object.carrying_clay = True
                 self.parent.cursor_object.colored = False
                 self.parent.cursor_object.show_texture()
                 # now remove the clay from the shape
                 self.has_clay = False
                 self.parent.has_clay = False
+                # set the active shape to none
+                self.parent.active_shape = None
+                # reset the tint of the image
+                self.color = [1, 1, 1, 1]
                 # set the source to the empty version of the shape
                 self.source = self.source.replace("filled", "normal")
                 return super().on_press()
@@ -48,6 +56,8 @@ class ShapeButton(ButtonBehavior, Image):
             self.source = self.source.replace("normal", "filled")
             self.has_clay = True
             self.parent.has_clay = True
+            # we then set the active shape to this shape
+            self.parent.active_shape = self
             # we then remove the clay from the cursor
             self.parent.cursor_object.carrying_clay = False
             self.parent.cursor_object.colored = False
@@ -76,6 +86,11 @@ class ShapePicker(BoxLayout):
     has_clay = False
     """
     Represents whether the shape picker has clay inside it or not
+    """
+
+    active_shape = None
+    """
+    Stores a reference to the shape that currently has clay inside it
     """
 
     def __init__(self, **kw):

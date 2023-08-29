@@ -11,6 +11,11 @@
         size_hint: .4, 0.25
         pos_hint: {"bottom": 1}
         x: "60dp"
+    ClayColorPicker:
+        id:color_picker
+        size_hint: .4, 0.75
+        y: self.parent.ids.shape_picker.height
+        x: "60dp"
     ClayJar:
         id:clay_jar
         pos_hint: {"left": 0, "center_y": 0.3}

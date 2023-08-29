@@ -1,0 +1,55 @@
+#:kivy 1.10.0
+<ClayColorPicker>:
+    canvas:
+        Color:
+            rgba: 1,1,1,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            texture: self.bg_texture
+    cols: 3
+    rows: 3
+    padding: "10dp", "20dp", "20dp", "10dp"
+    ColorButton:
+        id: violet
+        source: "assets/textures/violet.png"
+        size_hint: .25, .333
+        tint_color: (148/255, 0, 211/255, 1)
+
+    ColorButton:
+        id: indigo
+        source: "assets/textures/indigo.png"
+        size_hint: .25, .333
+        tint_color: (75/255, 0, 130/255, 1)
+
+    ColorButton:
+        id: blue
+        source: "assets/textures/blue.png"
+        size_hint: .25, .333
+        tint_color: (0, 0, 1, 1)
+
+    ColorButton:
+        id: green
+        source: "assets/textures/green.png"
+        size_hint: .25, .333
+        tint_color: (0, 1, 0, 1)
+
+    ColorButton:
+        id: yellow
+        source: "assets/textures/yellow.png"
+        size_hint: .25, .333
+        tint_color: (1, 1, 0, 1)
+
+    ColorButton:
+        id: orange
+        source: "assets/textures/orange.png"
+        size_hint: .25, .333
+        tint_color: (1, 0.5, 0, 1)
+
+    ColorButton:
+        id: red
+        source: "assets/textures/red.png"
+        size_hint: .25, .333
+        tint_color: (1, 0, 0, 1)
+
+

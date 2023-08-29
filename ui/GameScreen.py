@@ -5,6 +5,7 @@ from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from ui.cursorobject import CursorObject
 from ui.shapepicker import ShapePicker
+from ui.colorpicker import ClayColorPicker
 from kivy.animation import Animation
 
 Builder.load_file("ui/kv/gamescreen.kv")
@@ -102,8 +103,12 @@ class GameScreen(Screen):
         # set the clay jar's cursor picker
         self.ids.clay_jar.cursor_object = self.cursor_object
         self.ids.clay_jar.current_clay_amount = 10
-        # get the shape picker cursor object
+        # set the shape picker cursor object
         self.ids.shape_picker.cursor_object = self.cursor_object
+        # set the color picker cursor object
+        self.ids.color_picker.cursor_object = self.cursor_object
+        # set the shape picker reference of the color picker
+        self.ids.color_picker.shape_picker = self.ids.shape_picker
 
     def on_enter(self, *aargs, **kwargs):
         print("hello")
