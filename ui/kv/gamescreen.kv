@@ -26,6 +26,30 @@
 
     LevelShowButton:
         id:level_show_button
+        size_hint: .2, .1
+        pos_hint: {"right": .9, "top": .96}
+
+    LevelTimer:
+        id:level_timer
         size_hint: .25, .1
-        pos_hint: {"right": .8, "top": .96}
+        pos_hint: {"right": .68, "top": 1}
+
+    Button:
+        id: menu_button
+        pos_hint: {"right": .98, "top": .96}
+        background_normal: "assets/textures/menu_button_normal.png"
+        background_down: "assets/textures/menu_button_normal.png"
+        size_hint: None, None
+        size: (90,90) if self.state == "normal" else (80,80)
+        border: 10, 10, 10, 10
+        canvas.before:
+            Color:
+                rgba: 0, 0, 0, 0.5
+            BoxShadow:
+                pos: self.pos
+                size: self.size
+                offset: 0, -3
+                spread_radius: -3, -3
+                border_radius: self.width / 2, self.width / 2, self.width / 2, self.width / 2
+                blur_radius: 20 if self.state == "normal" else 10
         

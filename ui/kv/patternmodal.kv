@@ -50,6 +50,7 @@
             background_down: "assets/textures/play_action_normal.png"
             size_hint: (0.3, 0.09) if self.state == "normal" else (0.29, 0.1)
             border: 10, 10, 10, 10
+            on_press: root.parent_screen.button_start_level(root)
             canvas.before:
                 Color:
                     rgba: 0, 0, 0, 0.85

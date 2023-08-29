@@ -9,9 +9,11 @@ from ui.shapepicker import ShapePicker
 from ui.colorpicker import ClayColorPicker
 from ui.workspace import WorkSpace
 from ui.levelshowbutton import LevelShowButton
+from ui.leveltimer import LevelTimer
 from ui.patternmodal import PatternModal
 from kivy.animation import Animation
 from kivy.properties import NumericProperty
+from levels import EASY_TIME, MEDIUM_TIME, HARD_TIME
 
 
 Builder.load_file("ui/kv/gamescreen.kv")
@@ -106,6 +108,11 @@ class GameScreen(Screen):
     generate a new level
     """
 
+    timer_running = False
+    """
+    Represents whether the timer is running or not
+    """
+
     def __init__(self, level_handler, *args, **kwargs):
         self.level_handler = level_handler
         self.bg_texture = Image(
@@ -116,11 +123,11 @@ class GameScreen(Screen):
         self.name = "game_screen"
         # set show times based on difficulty
         if self.level_handler.current_difficulty == 0:
-            self.show_times = 3
+            self.show_times = 4
         elif self.level_handler.current_difficulty == 1:
-            self.show_times = 5
+            self.show_times = 6
         else:
-            self.show_times = 5
+            self.show_times = 6
         super().__init__(*args, **kwargs)
         # create a cursor object and add it to screen
         self.cursor_object = CursorObject()
@@ -137,6 +144,10 @@ class GameScreen(Screen):
         # bind the level show button to our function
         self.ids.level_show_button.bind(on_release=self.show_level)
 
+    def on_enter(self, *args):
+        self.show_level()
+        return super().on_enter(*args)
+
     def show_level(self, *args):
         """
         Shows the modal view of the level preview and reduces the
@@ -149,8 +160,38 @@ class GameScreen(Screen):
                 level_no=self.level_handler.current_level,
                 preview_path=self.level_handler.get_preview_path(),
             )
+            pattern_modal.bind(on_dismiss=self.start_level)
+            pattern_modal.parent_screen = self
             pattern_modal.open()
         else:
             self.cursor_object.show_popup(
                 "Out of Luck!", "You have no more previews left!"
             )
+
+    def start_level(self, *args):
+        """
+        Starts the level and shows the timer. Also starts the timer
+        """
+        if not self.timer_running:
+            if self.level_handler.current_difficulty == 0:
+                duration = EASY_TIME
+            elif self.level_handler.current_difficulty == 1:
+                duration = MEDIUM_TIME
+            else:
+                duration = HARD_TIME
+            self.ids.level_timer.start_timer(duration, self.on_timer_end)
+            self.timer_running = True
+
+    def button_start_level(self, modal, *args):
+        """
+        Starts the level and shows the timer. Also starts the timer
+        """
+        if not self.timer_running:
+            modal.dismiss()
+
+    def on_timer_end(self, *args):
+        """
+        Called when the timer ends. Shows the game over popup
+        """
+        self.cursor_object.show_popup("Game Over!", "You ran out of time!")
+        self.timer_running = False

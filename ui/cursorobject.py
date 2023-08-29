@@ -5,6 +5,7 @@ from kivy.lang.builder import Builder
 from kivy.core.window import Window
 from kivy.uix.image import Image
 from kivy.metrics import dp
+from kivy.uix.anchorlayout import AnchorLayout
 
 Builder.load_file("ui/kv/popupbase.kv")
 Builder.load_file("ui/kv/cursorobject.kv")
@@ -15,6 +16,22 @@ class PopupBase(Popup):
     Base class used to represent a popup. This class is used repeadetly to
     construct custom popups for various error messages within the game.
     """
+
+
+class PopupContent(AnchorLayout):
+    """
+    This class is used to represent the content of the popup. This is used
+    to display the content of the popup in a more organized manner.
+    """
+
+    description = None
+    """
+    The description of the popup
+    """
+
+    def __init__(self, description, **kwargs):
+        self.description = description
+        super().__init__(**kwargs)
 
 
 class CursorObject(Image):
@@ -100,5 +117,5 @@ class CursorObject(Image):
         Shows a popup when the player tries to drop colored clay
         back into the claypot
         """
-        self.popup = PopupBase(title=title, content=Label(text=content))
+        self.popup = PopupBase(title=title, content=PopupContent(description=content))
         self.popup.open()

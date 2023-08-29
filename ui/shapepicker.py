@@ -22,7 +22,9 @@ class ShapeButton(ButtonBehavior, Image):
             # we already have clay in the shape so we check if the player is carrying clay
             if self.parent.cursor_object.carrying_clay:
                 # the player is carrying clay so we tell the user to empty the shape first
-                self.parent.cursor_object.show_popup("Error", "Empty the shape first")
+                self.parent.cursor_object.show_popup(
+                    "Error", "There is already clay here"
+                )
                 return super().on_press()
             else:
                 # the player is not carrying clay so we attach the clay to the cursor
@@ -49,7 +51,7 @@ class ShapeButton(ButtonBehavior, Image):
             if self.parent.has_clay:
                 # there is already clay in the shape picker so we tell the user to empty it first
                 self.parent.cursor_object.show_popup(
-                    "Error", "Empty the shape picker first"
+                    "Error", "There is already clay here"
                 )
                 return super().on_press()
             # they are carrying clay so switch to the filled version of the shapes
@@ -65,7 +67,9 @@ class ShapeButton(ButtonBehavior, Image):
             self.parent.cursor_object.remove_texture()
         else:
             # they are not carrying clay so tell the user to pick up clay first
-            self.parent.cursor_object.show_popup("Error", "Pick up clay first")
+            self.parent.cursor_object.show_popup(
+                "Error", "Click on the clay jar first to pickup clay"
+            )
         return super().on_press()
 
     pass

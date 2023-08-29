@@ -19,6 +19,11 @@ class PatternModal(ModalView):
     The path of the preview image of the level
     """
 
+    parent_screen = None
+    """
+    Holds a reference to the parent screen
+    """
+
     def __init__(self, *args, **kwargs):
         self.level_no = kwargs.pop("level_no")
         self.preview_path = kwargs.pop("preview_path")
