@@ -141,6 +141,8 @@ class GameScreen(Screen):
         self.ids.color_picker.cursor_object = self.cursor_object
         # set the shape picker reference of the color picker
         self.ids.color_picker.shape_picker = self.ids.shape_picker
+        # set the workspace cursor object
+        self.ids.workspace.cursor_object = self.cursor_object
         # bind the level show button to our function
         self.ids.level_show_button.bind(on_release=self.show_level)
 

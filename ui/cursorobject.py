@@ -128,6 +128,17 @@ class CursorObject(AnchorLayout):
         # also bind to keyboard for rotation
         Window.bind(on_key_down=self.on_key_down)
 
+    def drop_shape(self):
+        """
+        This function is called when the user drops a shape
+        """
+        self.carrying_shape = False
+        # remove the shape from the cursor
+        self.shape.opacity = 0
+        self.shape.shape = ""
+        # unbind the keyboard
+        Window.unbind(on_key_down=self.on_key_down)
+
     def remove_texture(self):
         """
         Removes the texture from the cursor
@@ -157,7 +168,7 @@ class CursorObject(AnchorLayout):
         """
         if key == 276:
             # the left arrow key was pressed
-            self.shape.angle -= 2
+            self.shape.angle += 15
         elif key == 275:
             # the right arrow key was pressed
-            self.shape.angle += 2
+            self.shape.angle -= 15

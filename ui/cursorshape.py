@@ -2,7 +2,7 @@ from kivy.uix.scatter import Scatter
 from kivy.lang import Builder
 from kivy.properties import StringProperty, NumericProperty
 from kivy.graphics import Rectangle, Ellipse, Triangle, Color
-from kivy.animation import Animation
+from kivy.uix.image import Image
 
 Builder.load_file("ui/kv/cursorshape.kv")
 
@@ -52,5 +52,7 @@ class CursorShape(Scatter):
             self.canvas.add(Triangle(points=[0, 0, 50, 87, 100, 0]))
         elif value == "rhombus":
             # we are dealing with a rhombus so we draw a rhombus
-            self.canvas.add(Triangle(points=[50, 0, 0, 50, 50, 100]))
-            self.canvas.add(Triangle(points=[50, 0, 100, 50, 50, 100]))
+            image = Image(source="assets/textures/rhombus.png")
+            self.canvas.add(
+                Rectangle(texture=image.texture, size=image.texture_size, pos=(0, 0))
+            )
