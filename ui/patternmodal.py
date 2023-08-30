@@ -28,5 +28,6 @@ class PatternModal(ModalView):
         self.level_no = kwargs.pop("level_no")
         self.preview_path = kwargs.pop("preview_path")
         super().__init__(*args, **kwargs)
+        self.ids.level_preview_image.reload()
 
     pass

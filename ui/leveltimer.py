@@ -42,3 +42,9 @@ class LevelTimer(FloatLayout):
         if int(self.time) == 0:
             Clock.unschedule(self.update_timer)
             self.callback()
+
+    def stop_timer(self):
+        """
+        Stops the timer
+        """
+        Clock.unschedule(self.update_timer)

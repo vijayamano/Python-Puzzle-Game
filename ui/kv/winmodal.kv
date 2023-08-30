@@ -1,0 +1,63 @@
+#:kivy 1.10.0
+
+<WinnerModal>:
+    size_hint: 0.5, 0.5
+    auto_dismiss: False
+    background:"assets/textures/difficulty_level_bg.png"
+    overlay_color: 0, 0, 0, 0.8
+
+    FloatLayout:
+        size_hint:1,1
+        pos_hint:{"center_x":.5, "center_y":.5}
+
+        Label:
+            text: "You Win!"
+            font_size: 64
+            pos_hint:{"center_x":.5, "center_y":.8}
+            font_name: "assets/fonts/main.ttf"
+            color: 1, 1, 1, 1
+
+        Button:
+            id: continue_button
+            pos_hint: {"center_x": 0.5, "center_y": 0.5}
+            background_normal: "assets/textures/show_level_button.png"
+            background_down: "assets/textures/show_level_button.png"
+            size_hint: (0.3, 0.13) if self.state == "normal" else (0.29, 0.12)
+            border: 10, 10, 10, 10
+            on_release:root.parent_screen.continue_level(root)
+            text: "Continue"
+            font_size: 30
+            font_name: "assets/fonts/main.ttf"
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.85
+                BoxShadow:
+                    pos: self.pos
+                    size: self.size
+                    offset: 0, -5
+                    spread_radius: -10, -10
+                    border_radius: 10, 10, 10, 10
+                    blur_radius: 40 if self.state == "normal" else 20
+
+        Button:
+            id: main_menu_button
+            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            background_normal: "assets/textures/show_level_button.png"
+            background_down: "assets/textures/show_level_button.png"
+            size_hint: (0.3, 0.13) if self.state == "normal" else (0.29, 0.12)
+            border: 10, 10, 10, 10
+            on_release:root.parent_screen.main_menu()
+            text: "Main Menu"
+            font_color: 1, 0, 0, 1
+            font_size: 30
+            font_name: "assets/fonts/main.ttf"
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 0.85
+                BoxShadow:
+                    pos: self.pos
+                    size: self.size
+                    offset: 0, -5
+                    spread_radius: -10, -10
+                    border_radius: 10, 10, 10, 10
+                    blur_radius: 40 if self.state == "normal" else 20

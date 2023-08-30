@@ -286,7 +286,6 @@ class LevelGenerator:
         """
         Generates the preview image for this level and store it in the tmp folder
         """
-        print("ran")
         surface = Surface((700, 700), SRCALPHA, 32)
         surface.fill((255, 255, 255, 0))
         for shape in self.current_level:

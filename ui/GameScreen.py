@@ -3,6 +3,7 @@ from kivy.lang.builder import Builder
 from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
+from levels.LevelHandler import LevelHandler
 from ui.cursorobject import CursorObject
 from ui.shapepicker import ShapePicker
 from ui.colorpicker import ClayColorPicker
@@ -11,6 +12,7 @@ from ui.levelshowbutton import LevelShowButton
 from ui.leveltimer import LevelTimer
 from ui.patternmodal import PatternModal
 from kivy.animation import Animation
+from ui.winmodal import WinnerModal
 from kivy.properties import NumericProperty
 from levels import (
     EASY_CLAY_LIMIT,
@@ -203,6 +205,55 @@ class GameScreen(Screen):
         self.timer_running = False
 
     def submit(self, *args):
-        self.ids.workspace.ids.container.export_to_png("test.png")
-        temp = Checker()
-        print(temp.check("test.png", "assets/levels/easy/1.png"))
+        # self.ids.workspace.ids.container.export_to_png("assets/tmp/user_work.png")
+        # temp = Checker()
+        # factor = temp.check(
+        #     "assets/tmp/user_work.png", self.level_handler.get_preview_path()
+        # )
+        factor = 1  # TODO: remove this line
+        # If the AI produces a similarity factor of above 0.75 then the player has won
+        if factor > 0.75:
+            self.ids.level_timer.stop_timer()
+            winmodal = WinnerModal(parent_screen=self)
+            winmodal.parent_screen = self
+            winmodal.open()
+
+    def continue_level(self, modal, *args):
+        """
+        Called when the player presses the continue button on the win modal
+        """
+        # close the modal
+        modal.dismiss()
+        self.manager.init_transition(self.move_to_next_level)
+
+    def move_to_next_level(self, *args):
+        """
+        Moves the game to the next level
+        """
+        # first check if we are in the endless mode
+        if self.level_handler.generated:
+            # we are in endless mode so we need to generate the next level before transitioning
+            self.level_handler.level_gen.clear_level()  # clear the level generator state
+            self.level_handler.generate_level(self.level_handler.current_difficulty)
+            self.manager.switch_to(GameScreen(self.level_handler))
+            return
+        # increment the current level handler current level by 1
+        self.level_handler.current_level = str(
+            int(self.level_handler.current_level) + 1
+        )
+        # check if there is any change in the difficulty
+        if int(self.level_handler.current_level) <= 20:
+            self.level_handler.current_difficulty = 0
+        elif int(self.level_handler.current_level) <= 40:
+            self.level_handler.current_difficulty = 1
+        else:
+            self.level_handler.current_difficulty = 2
+        self.level_handler.generated = False
+        self.manager.switch_to(GameScreen(self.level_handler))
+
+    def main_menu(self, *args):
+        """
+        Called when the player presses the main menu button on the win modal
+        """
+        self.manager.current = "main_menu"
+        self.manager.transition.direction = "right"
