@@ -205,12 +205,11 @@ class GameScreen(Screen):
         self.timer_running = False
 
     def submit(self, *args):
-        # self.ids.workspace.ids.container.export_to_png("assets/tmp/user_work.png")
-        # temp = Checker()
-        # factor = temp.check(
-        #     "assets/tmp/user_work.png", self.level_handler.get_preview_path()
-        # )
-        factor = 1  # TODO: remove this line
+        self.ids.workspace.ids.container.export_to_png("assets/tmp/user_work.png")
+        temp = Checker()
+        factor = temp.check(
+            "assets/tmp/user_work.png", self.level_handler.get_preview_path()
+        )
         # If the AI produces a similarity factor of above 0.75 then the player has won
         if factor > 0.75:
             self.ids.level_timer.stop_timer()
