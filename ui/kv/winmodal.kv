@@ -46,7 +46,7 @@
             background_down: "assets/textures/show_level_button.png"
             size_hint: (0.3, 0.13) if self.state == "normal" else (0.29, 0.12)
             border: 10, 10, 10, 10
-            on_release:root.parent_screen.main_menu()
+            on_release:root.parent_screen.main_menu(root)
             text: "Main Menu"
             font_color: 1, 0, 0, 1
             font_size: 30

@@ -251,9 +251,18 @@ class GameScreen(Screen):
         self.level_handler.generated = False
         self.manager.switch_to(GameScreen(self.level_handler))
 
-    def main_menu(self, *args):
+    def main_menu(self, modal, *args):
         """
         Called when the player presses the main menu button on the win modal
         """
-        self.manager.current = "main_menu"
-        self.manager.transition.direction = "right"
+        # close the modal
+        modal.dismiss()
+        self.manager.init_transition(self.move_to_main_menu)
+
+    def move_to_main_menu(self, *args):
+        """
+        Moves the game to the main menu
+        """
+        from ui.levelscreen import LevelScreen
+
+        self.manager.switch_to(LevelScreen())
