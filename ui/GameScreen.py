@@ -20,7 +20,7 @@ from levels import (
     MEDIUM_TIME,
     HARD_TIME,
 )
-
+from checker import Checker
 
 Builder.load_file("ui/kv/gamescreen.kv")
 Builder.load_file("ui/kv/clayjar.kv")
@@ -201,3 +201,8 @@ class GameScreen(Screen):
         """
         self.cursor_object.show_popup("Game Over!", "You ran out of time!")
         self.timer_running = False
+
+    def submit(self, *args):
+        self.ids.workspace.ids.container.export_to_png("test.png")
+        temp = Checker()
+        print(temp.check("test.png", "assets/levels/easy/1.png"))
