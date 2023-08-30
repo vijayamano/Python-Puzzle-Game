@@ -75,6 +75,14 @@ class DifficultyButton(ButtonBehavior, Image, HoverBehavior):
     """
 
     hovering = BooleanProperty(False)
+    """
+    Represents whether the mouse is hovering over the widget
+    """
+
+    difficulty = StringProperty(None)
+    """
+    The difficulty of the level the current button represents
+    """
 
     def on_enter(self, *args):
         """
@@ -95,6 +103,16 @@ class DifficultyButton(ButtonBehavior, Image, HoverBehavior):
 
     def set_false(self, *args):
         self.hovering = False
+
+    def on_release(self):
+        """
+        Triggered when the widget is pressed and then released.
+        Used to select the difficulty
+        """
+        # close the popup
+        self.parent.parent.dismiss()
+        self.parent.parent.parent_screen.select_level(self.difficulty)
+        return super().on_release()
 
 
 class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
@@ -155,7 +173,7 @@ class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
         triggers when the widget is pressed
         """
         if self.level_no == "Endless":
-            self.parent_container.show_difficulty("infinite")
+            self.parent_container.show_difficulty()
         else:
             self.parent_container.select_level(self.level_no)
 
@@ -328,6 +346,11 @@ class LevelScreen(EffectWidget, Screen):
         This function is called after the first animation plays
         and before the second animation plays
         """
+        if level_no in ["easy", "medium", "hard"]:
+            # we are in endless mode and thus we need to generate a level and switch to it
+            self.level_handler.generate_level(level_no)
+            self.manager.switch_to(GameScreen(level_handler=self.level_handler))
+            return
         temp = level_no.split(" ")[1]
         self.level_handler.current_level = temp
         if int(temp) <= 20:

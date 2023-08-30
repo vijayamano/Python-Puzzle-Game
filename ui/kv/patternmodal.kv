@@ -22,7 +22,7 @@
 
             Label:
                 id:level_preview_title
-                text: "Level "+ root.level_no
+                text: "Level "+ root.level_no if root.level_no != 0 else "Endless"
                 font_size: "30dp"
                 color: 1,1,1,1
                 font_name: "assets/fonts/main.ttf"

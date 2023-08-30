@@ -10,7 +10,8 @@ from levels import (
     SHAPES,
     COLORS,
 )
-from pygame import Surface
+from pygame import Surface, SRCALPHA, draw
+from pygame.image import save
 from levels.Shapes import Rhombus, Square, Triangle, Circle
 
 
@@ -49,13 +50,14 @@ class LevelGenerator:
         Generates a level of the specified difficulty
         """
         if self.difficulty == 0:
-            return self.generate_easy_level()
+            self.generate_easy_level()
         elif self.difficulty == 1:
-            return self.generate_medium_level()
+            self.generate_medium_level()
         elif self.difficulty == 2:
-            return self.generate_hard_level()
-        else:
-            return self.generate_easy_level()
+            print("generating hard level")
+            self.generate_hard_level()
+        # generate the preview image
+        self.generate_preview_image()
 
     def _choose_random_shape(self):
         """
@@ -279,3 +281,42 @@ class LevelGenerator:
                     self.current_level.append(new_shape)
         # assign colors to the shapes
         self._generate_colors(HARD_FALL_OFF)
+
+    def generate_preview_image(self):
+        """
+        Generates the preview image for this level and store it in the tmp folder
+        """
+        print("ran")
+        surface = Surface((700, 700), SRCALPHA, 32)
+        surface.fill((255, 255, 255, 0))
+        for shape in self.current_level:
+            if shape.shape_type == "triangle":
+                draw.polygon(
+                    surface,
+                    shape.color,
+                    [shape.p1, shape.p2, shape.p3],
+                    0,
+                )
+            elif shape.shape_type == "square":
+                draw.polygon(
+                    surface,
+                    shape.color,
+                    [shape.p1, shape.p2, shape.p3, shape.p4],
+                    0,
+                )
+            elif shape.shape_type == "circle":
+                draw.circle(
+                    surface,
+                    shape.color,
+                    shape.center,
+                    shape.radius,
+                    0,
+                )
+            elif shape.shape_type == "rhombus":
+                draw.polygon(
+                    surface,
+                    shape.color,
+                    [shape.p1, shape.p2, shape.p3, shape.p4],
+                    0,
+                )
+        save(surface, "assets/levels/generated/preview.png")

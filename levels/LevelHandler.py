@@ -1,5 +1,6 @@
 import json
 from levels.level import Level
+from levels.LevelGenerator import LevelGenerator
 
 
 class LevelHandler:
@@ -18,6 +19,12 @@ class LevelHandler:
     The current difficulty of the level being played
     """
 
+    generated = False
+    """
+    Whether or not the current level has been generated or been loaded
+    from pre generated levels
+    """
+
     easy_levels = None
     """
     Contains all the pre-generated easy levels
@@ -33,21 +40,33 @@ class LevelHandler:
     Contains all the pre-generated hard levels
     """
 
+    level_gen = None
+    """
+    The level generator used to generate levels
+    """
+
     def __init__(self):
-        self.current_level = []
+        self.current_level = 0
         self.easy_levels = []
         self.medium_levels = []
         self.hard_levels = []
 
-    def generate_level(difficulty):
+    def generate_level(self, difficulty):
         """
         Generates a level of the specified difficulty
         """
-
+        self.generated = True
         match difficulty:
-            case 0:
-                # Easy difficulty with little amount of shapes
-                pass
+            case "easy":
+                self.level_gen = LevelGenerator(0)
+                self.current_difficulty = 0
+            case "medium":
+                self.level_gen = LevelGenerator(1)
+                self.current_difficulty = 1
+            case "hard":
+                self.level_gen = LevelGenerator(2)
+                self.current_difficulty = 2
+        self.level_gen.generate_level()
 
     def load_levels(self):
         """
@@ -91,6 +110,9 @@ class LevelHandler:
         """
         Returns the path of the preview image of the current level
         """
+        if self.generated:
+            # We are using a generated level
+            return "assets/levels/generated/preview.png"
         match self.current_difficulty:
             case 0:
                 index = int(self.current_level)
