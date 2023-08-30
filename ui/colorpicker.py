@@ -18,7 +18,7 @@ class ColorButton(ButtonBehavior, Image):
         """
         Called on release of the color button. This function will assign color to our clay object
         """
-        # first we check if there is clay inside the shape picker
+        # check if there is clay inside the shape picker
         if self.parent.shape_picker.has_clay:
             # there is clay inside the shape picker so we can color it
             self.parent.shape_picker.active_shape.color = self.tint_color

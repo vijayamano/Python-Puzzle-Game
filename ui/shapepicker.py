@@ -33,9 +33,19 @@ class ShapeButton(ButtonBehavior, Image):
             else:
                 # the player is not carrying clay so we attach the clay to the cursor
                 # we check to see if the clay is colored.
+                print(self.parent.cursor_object.colored)
                 if self.parent.cursor_object.colored:
                     # the clay is colored so we switch over to rendering the colored shape
                     self.parent.cursor_object.pickup_shape(self.shape, self.color)
+                    # now remove the clay from the shape
+                    self.has_clay = False
+                    self.parent.has_clay = False
+                    # set the active shape to none
+                    self.parent.active_shape = None
+                    # reset the tint of the image
+                    self.color = [1, 1, 1, 1]
+                    # set the source to the empty version of the shape
+                    self.source = self.source.replace("filled", "normal")
                     return super().on_press()
                 self.parent.cursor_object.carrying_clay = True
                 self.parent.cursor_object.colored = False

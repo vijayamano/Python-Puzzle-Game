@@ -8,3 +8,14 @@
         pos_hint:{"center_x":0.5,"center_y":0.5}
         fit_mode: "fill"
 
+    Label:
+        id: quantity
+        text: str(root.current_clay_amount) + "\nleft"
+        font_size: 30
+        size_hint:1,.2
+        pos_hint:{"center_x":0.4,"center_y":0.5}
+        color: 0,0,0,1
+        font_name: "assets/fonts/main.ttf"
+        halign: "center"
+
+

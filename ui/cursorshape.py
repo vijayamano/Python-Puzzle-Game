@@ -56,3 +56,4 @@ class CursorShape(Scatter):
             self.canvas.add(
                 Rectangle(texture=image.texture, size=image.texture_size, pos=(0, 0))
             )
+            print(image.texture_size)

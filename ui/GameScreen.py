@@ -1,4 +1,3 @@
-from ast import pattern
 from kivy.uix.screenmanager import Screen
 from kivy.lang.builder import Builder
 from kivy.uix.image import Image
@@ -13,7 +12,14 @@ from ui.leveltimer import LevelTimer
 from ui.patternmodal import PatternModal
 from kivy.animation import Animation
 from kivy.properties import NumericProperty
-from levels import EASY_TIME, MEDIUM_TIME, HARD_TIME
+from levels import (
+    EASY_CLAY_LIMIT,
+    EASY_TIME,
+    HARD_CLAY_LIMIT,
+    MEDIUM_CLAY_LIMIT,
+    MEDIUM_TIME,
+    HARD_TIME,
+)
 
 
 Builder.load_file("ui/kv/gamescreen.kv")
@@ -27,12 +33,7 @@ class ClayJar(ButtonBehavior, RelativeLayout):
     parameters can be set and tweaked based on the level difficulty
     """
 
-    max_clay_amount = None
-    """
-    The maximum amount of clay that can be stored in the jar
-    """
-
-    current_clay_amount = None
+    current_clay_amount = NumericProperty(0)
     """
     The current amount of clay that is stored in the jar
     """
@@ -68,15 +69,13 @@ class ClayJar(ButtonBehavior, RelativeLayout):
         possible to take clay from the jar or not.
         """
         Animation(size_hint=(0.1, 0.2), duration=0.1).start(self)
-        match self.cursor_object.pickup_clay():
+        match self.cursor_object.pickup_clay(self.current_clay_amount):
             case 0:
                 # we dropped the clay
-                print("dropped clay")
                 self.current_clay_amount += 1
 
             case 1:
                 # we picked up the clay
-                print("picked up clay")
                 self.current_clay_amount -= 1
 
         return super().on_release()
@@ -134,7 +133,13 @@ class GameScreen(Screen):
         self.add_widget(self.cursor_object)
         # set the clay jar's cursor picker
         self.ids.clay_jar.cursor_object = self.cursor_object
-        self.ids.clay_jar.current_clay_amount = 10
+        # assign the clay amount based on the difficulty
+        if self.level_handler.current_difficulty == 0:
+            self.ids.clay_jar.current_clay_amount = EASY_CLAY_LIMIT
+        elif self.level_handler.current_difficulty == 1:
+            self.ids.clay_jar.current_clay_amount = MEDIUM_CLAY_LIMIT
+        else:
+            self.ids.clay_jar.current_clay_amount = HARD_CLAY_LIMIT
         # set the shape picker cursor object
         self.ids.shape_picker.cursor_object = self.cursor_object
         # set the color picker cursor object

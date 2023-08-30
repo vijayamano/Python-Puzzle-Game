@@ -1,12 +1,8 @@
-from re import I
-from kivy.uix.label import Label
 from kivy.uix.popup import Popup
 from kivy.lang.builder import Builder
 from kivy.core.window import Window
-from kivy.uix.image import Image
 from kivy.metrics import dp
 from kivy.uix.anchorlayout import AnchorLayout
-from kivy.properties import StringProperty
 
 from ui.cursorshape import CursorShape
 
@@ -89,15 +85,19 @@ class CursorObject(AnchorLayout):
             # move the cursor texture to the mouse position
             self.center = dp(pos[0]), dp(pos[1])
 
-    def pickup_clay(self):
+    def pickup_clay(self, amount):
         """
         Called when the player picks up clay from the claypot
         """
         # first we check if the player is carrying colored clay
-        if self.carrying_clay and self.colored:
-            # this means that the player currently has a colored clay
-            # we cannot drop colored clay back in so show popup
-            self.show_popup("Error", "You cannot drop colored clay back in the claypot")
+        if self.carrying_shape:
+            # this means that the player is currently carrying a shape
+            # we cannot pick up clay while carrying a shape
+            self.show_popup("Error", "You can only place colored clay on the workspace")
+            return -1
+        if self.colored:
+            # this means the the player currently has some colored clay in a slot so they cant pick more
+            self.show_popup("Error", "Clear the slot first to pick up more")
             return -1
         # the player is not carrying colored clay and we can continue
         # now check if the player is already carrying clay
@@ -108,6 +108,11 @@ class CursorObject(AnchorLayout):
             # set the texture display to nothing
             self.remove_texture()
             return 0
+        # now we check if there is enough clay to be picked up
+        if amount <= 0:
+            # there is no clay to be picked up
+            self.show_popup("Woops!", "You ran out of Clay")
+            return -1
         # the player is not carrying clay so we pick it up
         self.carrying_clay = True
         self.colored = False
@@ -136,6 +141,8 @@ class CursorObject(AnchorLayout):
         # remove the shape from the cursor
         self.shape.opacity = 0
         self.shape.shape = ""
+        self.colored = False
+        self.carrying_clay = False
         # unbind the keyboard
         Window.unbind(on_key_down=self.on_key_down)
 
