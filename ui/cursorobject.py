@@ -6,6 +6,9 @@ from kivy.core.window import Window
 from kivy.uix.image import Image
 from kivy.metrics import dp
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.properties import StringProperty
+
+from ui.cursorshape import CursorShape
 
 Builder.load_file("ui/kv/popupbase.kv")
 Builder.load_file("ui/kv/cursorobject.kv")
@@ -34,7 +37,7 @@ class PopupContent(AnchorLayout):
         super().__init__(**kwargs)
 
 
-class CursorObject(Image):
+class CursorObject(AnchorLayout):
     """
     This class is used to represent the cursor and any
     object that is being dragged along with it
@@ -55,16 +58,32 @@ class CursorObject(Image):
     Boolean value that represents if we hsould 
     """
 
+    carrying_shape = False
+    """
+    Represents whether the cursor is carrying a fully colored and shaped object
+    """
+
+    shape = None
+    """
+    Used to hold a reference to the object of the shape that is being carried
+    """
+
     def __init__(self, **kwargs):
         # bind a function to the cursor position
         Window.bind(mouse_pos=self.on_mouse_pos)
         super().__init__(**kwargs)
-        self.opacity = 0
+        self.shape = self.ids.clay_cursor_shape
+        self.ids.clay_cursor_image.opacity = 0
+        self.shape.opacity = 0
 
     def on_mouse_pos(self, window, pos):
         """
         Called when the mouse moves
         """
+        # check if we are carrying a shape
+        if self.carrying_shape:
+            # move the shape to the mouse position
+            self.center = dp(pos[0]), dp(pos[1])
         # check if the cursor is carrying clay
         if self.carrying_clay:
             # move the cursor texture to the mouse position
@@ -96,20 +115,31 @@ class CursorObject(Image):
         self.show_texture()
         return 1
 
+    def pickup_shape(self, shape, color):
+        """
+        This function is called when the user picks up a shape
+        """
+        self.carrying_shape = True
+        # create the new shape object and add it to the cursor
+        self.shape = self.ids.clay_cursor_shape
+        self.shape.opacity = 1
+        self.shape.color = color
+        self.shape.shape = shape
+        # also bind to keyboard for rotation
+        Window.bind(on_key_down=self.on_key_down)
+
     def remove_texture(self):
         """
         Removes the texture from the cursor
         """
-        self.source = ""
-        self.opacity = 0
+        self.ids.clay_cursor_image.opacity = 0
         self.should_display_texture = False
 
     def show_texture(self):
         """
         Shows the texture on the cursor
         """
-        self.source = "assets/textures/clay_cursor.png"
-        self.opacity = 1
+        self.ids.clay_cursor_image.opacity = 1
         self.should_display_texture = True
 
     def show_popup(self, title, content):
@@ -119,3 +149,15 @@ class CursorObject(Image):
         """
         self.popup = PopupBase(title=title, content=PopupContent(description=content))
         self.popup.open()
+
+    def on_key_down(self, window, key, *args):
+        """
+        Called when a key is pressed
+        Is used to affect the rotation of the shape class
+        """
+        if key == 276:
+            # the left arrow key was pressed
+            self.shape.angle -= 2
+        elif key == 275:
+            # the right arrow key was pressed
+            self.shape.angle += 2

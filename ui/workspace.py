@@ -1,10 +1,12 @@
-from kivy.uix.widget import Widget
+from kivy.uix.anchorlayout import AnchorLayout
 from kivy.lang.builder import Builder
+from kivy.core.window import Window
+from kivy.metrics import dp
 
 Builder.load_file("ui/kv/workspace.kv")
 
 
-class WorkSpace(Widget):
+class WorkSpace(AnchorLayout):
     """
     This class represents the main work area for the player that is building the intended
     pattern. This class is responsible for handling the drag and drop of the shapes and

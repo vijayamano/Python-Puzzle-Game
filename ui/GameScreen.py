@@ -186,8 +186,7 @@ class GameScreen(Screen):
         """
         Starts the level and shows the timer. Also starts the timer
         """
-        if not self.timer_running:
-            modal.dismiss()
+        modal.dismiss()
 
     def on_timer_end(self, *args):
         """

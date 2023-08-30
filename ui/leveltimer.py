@@ -1,4 +1,3 @@
-from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.floatlayout import FloatLayout
 from kivy.lang.builder import Builder
 from kivy.properties import StringProperty

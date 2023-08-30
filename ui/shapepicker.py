@@ -1,4 +1,3 @@
-import re
 from kivy.uix.image import Image
 from kivy.lang.builder import Builder
 from kivy.uix.boxlayout import BoxLayout
@@ -11,6 +10,11 @@ class ShapeButton(ButtonBehavior, Image):
     has_clay = False
     """
     Represents whether the shape button has clay inside it or not
+    """
+
+    shape = None
+    """
+    The shape that this button represents
     """
 
     def on_press(self):
@@ -31,7 +35,7 @@ class ShapeButton(ButtonBehavior, Image):
                 # we check to see if the clay is colored.
                 if self.parent.cursor_object.colored:
                     # the clay is colored so we switch over to rendering the colored shape
-                    print("trrying to pickup a colored shape")
+                    self.parent.cursor_object.pickup_shape(self.shape, self.color)
                     return super().on_press()
                 self.parent.cursor_object.carrying_clay = True
                 self.parent.cursor_object.colored = False
@@ -65,6 +69,7 @@ class ShapeButton(ButtonBehavior, Image):
             self.parent.cursor_object.colored = False
             # we then set the cursor texture to the shape that the player selected
             self.parent.cursor_object.remove_texture()
+
         else:
             # they are not carrying clay so tell the user to pick up clay first
             self.parent.cursor_object.show_popup(

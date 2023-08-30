@@ -1,9 +1,22 @@
 #:kivy 1.10.0
 <WorkSpace>:
-    canvas:
+    anchor_x:'center'
+    anchor_y:'center'
+    canvas.before:
         Color:
             rgba: 1, 1, 1, 1
         Rectangle:
             pos: self.pos
             size: self.size
             source: self.bg_texture
+
+    RelativeLayout:
+        id: container
+        size_hint:.9,.9
+        pos_hint:{'center_x':.5,'center_y':.5}
+        canvas.after:
+            Color:
+                rgba: 1, 1, 1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
