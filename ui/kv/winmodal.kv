@@ -22,7 +22,7 @@
             pos_hint: {"center_x": 0.5, "center_y": 0.5}
             background_normal: "assets/textures/show_level_button.png"
             background_down: "assets/textures/show_level_button.png"
-            size_hint: (0.3, 0.13) if self.state == "normal" else (0.29, 0.12)
+            size_hint: (0.3, 0.2) if self.state == "normal" else (0.29, 0.19)
             border: 10, 10, 10, 10
             on_release:root.parent_screen.continue_level(root)
             text: "Continue"
@@ -41,10 +41,10 @@
 
         Button:
             id: main_menu_button
-            pos_hint: {"center_x": 0.5, "center_y": 0.3}
+            pos_hint: {"center_x": 0.5, "center_y": 0.2}
             background_normal: "assets/textures/show_level_button.png"
             background_down: "assets/textures/show_level_button.png"
-            size_hint: (0.3, 0.13) if self.state == "normal" else (0.29, 0.12)
+            size_hint: (0.3, 0.2) if self.state == "normal" else (0.29, 0.19)
             border: 10, 10, 10, 10
             on_release:root.parent_screen.main_menu(root)
             text: "Main Menu"

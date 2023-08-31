@@ -18,6 +18,7 @@ from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.modalview import ModalView
 from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.effectwidget import EffectWidget
+from audiohandler import AudioHandler
 
 Builder.load_file("ui/kv/levelscreen.kv")
 Builder.load_file("ui/kv/levelcard.kv")
@@ -109,6 +110,7 @@ class DifficultyButton(ButtonBehavior, Image, HoverBehavior):
         Triggered when the widget is pressed and then released.
         Used to select the difficulty
         """
+        AudioHandler().click_sound()
         # close the popup
         self.parent.parent.dismiss()
         self.parent.parent.parent_screen.select_level(self.difficulty)
@@ -168,10 +170,11 @@ class LevelCard(ButtonBehavior, AnchorLayout, HoverBehavior):
         anim.start(self.ids.level_card_bg)
         anim.start(self.ids.level_card_container)
 
-    def on_press(self):
+    def on_release(self):
         """
-        triggers when the widget is pressed
+        triggers when the widget is released
         """
+        AudioHandler().click_sound()
         if self.level_no == "Endless":
             self.parent_container.show_difficulty()
         else:
@@ -238,6 +241,8 @@ class LevelScreen(EffectWidget, Screen):
         self.ids.recycle_view.bind(scroll_y=self.on_scroll)
         # Load the level cards
         self.load_levels()
+        # play the main bgm in case we are not playing it
+        AudioHandler().start_main_bgm()
 
     def on_scroll(self, scroller, y):
         """
@@ -278,6 +283,7 @@ class LevelScreen(EffectWidget, Screen):
         """
         This function is used to go back to the main menu
         """
+        AudioHandler().click_sound()
         self.manager.init_transition(self.back_screen_setup)
 
     def back_screen_setup(self):

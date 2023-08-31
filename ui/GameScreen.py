@@ -4,7 +4,9 @@ from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.behaviors import ButtonBehavior
 from levels.LevelHandler import LevelHandler
+from ui.losemodal import LoseModal
 from ui.cursorobject import CursorObject
+from ui.menumodal import MenuModal
 from ui.shapepicker import ShapePicker
 from ui.colorpicker import ClayColorPicker
 from ui.workspace import WorkSpace
@@ -13,14 +15,18 @@ from ui.leveltimer import LevelTimer
 from ui.patternmodal import PatternModal
 from kivy.animation import Animation
 from ui.winmodal import WinnerModal
+from audiohandler import AudioHandler
 from kivy.properties import NumericProperty
 from levels import (
     EASY_CLAY_LIMIT,
     EASY_TIME,
+    EASY_VIEWS,
     HARD_CLAY_LIMIT,
+    HARD_VIEWS,
     MEDIUM_CLAY_LIMIT,
     MEDIUM_TIME,
     HARD_TIME,
+    MEDIUM_VIEWS,
 )
 from checker import Checker
 
@@ -124,11 +130,11 @@ class GameScreen(Screen):
         self.name = "game_screen"
         # set show times based on difficulty
         if self.level_handler.current_difficulty == 0:
-            self.show_times = 4
+            self.show_times = EASY_VIEWS
         elif self.level_handler.current_difficulty == 1:
-            self.show_times = 6
+            self.show_times = MEDIUM_VIEWS
         else:
-            self.show_times = 6
+            self.show_times = HARD_VIEWS
         super().__init__(*args, **kwargs)
         # create a cursor object and add it to screen
         self.cursor_object = CursorObject()
@@ -152,6 +158,8 @@ class GameScreen(Screen):
         self.ids.workspace.cursor_object = self.cursor_object
         # bind the level show button to our function
         self.ids.level_show_button.bind(on_release=self.show_level)
+        # if the main bgm is not playing we play it again
+        AudioHandler().start_main_bgm()
 
     def on_enter(self, *args):
         self.show_level()
@@ -162,6 +170,7 @@ class GameScreen(Screen):
         Shows the modal view of the level preview and reduces the
         total number of previews available.
         """
+        AudioHandler().click_sound()
         if self.show_times > 0:
             self.show_times -= 1
             self.ids.level_show_button.show_times = self.show_times
@@ -181,6 +190,8 @@ class GameScreen(Screen):
         """
         Starts the level and shows the timer. Also starts the timer
         """
+        # play audio
+        AudioHandler().click_sound()
         if not self.timer_running:
             if self.level_handler.current_difficulty == 0:
                 duration = EASY_TIME
@@ -201,10 +212,14 @@ class GameScreen(Screen):
         """
         Called when the timer ends. Shows the game over popup
         """
-        self.cursor_object.show_popup("Game Over!", "You ran out of time!")
         self.timer_running = False
+        self.ids.level_timer.stop_timer()
+        lostmenu = LoseModal(parent_screen=self)
+        lostmenu.open()
 
     def submit(self, *args):
+        AudioHandler().click_sound()
+        self.ids.level_timer.stop_timer()
         self.ids.workspace.ids.container.export_to_png("assets/tmp/user_work.png")
         temp = Checker()
         factor = temp.check(
@@ -212,15 +227,22 @@ class GameScreen(Screen):
         )
         # If the AI produces a similarity factor of above 0.75 then the player has won
         if factor > 0.75:
-            self.ids.level_timer.stop_timer()
+            # play the win sound
+            AudioHandler().win_sound()
             winmodal = WinnerModal(parent_screen=self)
-            winmodal.parent_screen = self
             winmodal.open()
+        else:
+            # play the lose sound
+            AudioHandler().lose_sound()
+            losemodal = LoseModal(parent_screen=self)
+            losemodal.open()
 
     def continue_level(self, modal, *args):
         """
         Called when the player presses the continue button on the win modal
         """
+        # play auudio
+        AudioHandler().click_sound()
         # close the modal
         modal.dismiss()
         self.manager.init_transition(self.move_to_next_level)
@@ -229,6 +251,7 @@ class GameScreen(Screen):
         """
         Moves the game to the next level
         """
+        self.ids.level_timer.stop_timer()
         # first check if we are in the endless mode
         if self.level_handler.generated:
             # we are in endless mode so we need to generate the next level before transitioning
@@ -254,6 +277,9 @@ class GameScreen(Screen):
         """
         Called when the player presses the main menu button on the win modal
         """
+        # play audio
+        AudioHandler().click_sound()
+        self.ids.level_timer.stop_timer()
         # close the modal
         modal.dismiss()
         self.manager.init_transition(self.move_to_main_menu)
@@ -265,3 +291,34 @@ class GameScreen(Screen):
         from ui.levelscreen import LevelScreen
 
         self.manager.switch_to(LevelScreen())
+
+    def retry_level(self, modal, *args):
+        """
+        Called when the player presses the retry button on the lose modal
+        """
+        # play audio
+        AudioHandler().click_sound()
+        self.ids.level_timer.stop_timer()
+        # close the modal
+        modal.dismiss()
+        self.manager.init_transition(self.move_to_retry_level)
+
+    def move_to_retry_level(self, *args):
+        """
+        Resets the gamesceen
+        """
+        # first check if we are in the endless mode
+        if self.level_handler.generated:
+            # we are in endless mode
+            self.manager.switch_to(GameScreen(self.level_handler))
+            return
+        self.level_handler.generated = False
+        self.manager.switch_to(GameScreen(self.level_handler))
+
+    def show_pause_menu(self, *args):
+        """
+        Shows the pause menu
+        """
+        # play audio
+        AudioHandler().click_sound()
+        MenuModal(parent_screen=self).open()

@@ -1,12 +1,12 @@
 import numpy as np
 from PIL import Image
 from tensorflow.keras.preprocessing import image
+from keras.applications.vgg16 import VGG16
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-
-from keras.applications.vgg16 import VGG16
-from sklearn.metrics.pairwise import cosine_similarity
 
 
 class Checker:
@@ -56,15 +56,20 @@ class Checker:
 
         return image_embedding
 
+    def show_image(self, image_path):
+        image = mpimg.imread(image_path)
+        imgplot = plt.imshow(image)
+        plt.show()
+
     def check(self, first_image: str, second_image: str):
         """
         Takes image array and computes its embedding using VGG16 model.
         return embedding of the image
         """
-
+        # self.show_image(first_image)
+        # self.show_image(second_image)
         first_image = self.load_image(first_image)
         second_image = self.load_image(second_image)
-
         first_image_vector = self.get_image_embeddings(first_image)
         second_image_vector = self.get_image_embeddings(second_image)
 

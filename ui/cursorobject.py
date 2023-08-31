@@ -3,6 +3,7 @@ from kivy.lang.builder import Builder
 from kivy.core.window import Window
 from kivy.metrics import dp
 from kivy.uix.anchorlayout import AnchorLayout
+from audiohandler import AudioHandler
 
 from ui.cursorshape import CursorShape
 
@@ -165,6 +166,8 @@ class CursorObject(AnchorLayout):
         Shows a popup when the player tries to drop colored clay
         back into the claypot
         """
+        # play the error sound
+        AudioHandler().error_sound()
         self.popup = PopupBase(title=title, content=PopupContent(description=content))
         self.popup.open()
 

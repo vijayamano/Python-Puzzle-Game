@@ -72,6 +72,12 @@ class WorkSpace(ButtonBehavior, AnchorLayout):
         """
         This function is called when the player presses on the workspace
         """
+        # check if the player is carrying a shape and not just normal clay
+        if self.cursor_object.carrying_clay or not self.cursor_object.carrying_shape:
+            self.cursor_object.show_popup(
+                "Woops!", "You can only place colored clay on the workspace"
+            )
+            return
         # create a new cursor shape based on the shape that is being carried by the cursor
         new_shape = DisplayShape(
             shape=self.cursor_object.shape.shape,

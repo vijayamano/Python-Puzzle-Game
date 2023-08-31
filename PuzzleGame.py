@@ -1,6 +1,7 @@
 import pygame
 from kivy.app import App
 from kivy.core.window import Window
+from audiohandler import AudioHandler
 from ui.welcomescreen import WelcomeScreen
 from kivy.lang.builder import Builder
 from kivy.properties import ListProperty
@@ -101,3 +102,5 @@ class PuzzleGame(App):
         Runs as soon as the game launches
         """
         self.main_screen.switch_to(WelcomeScreen())
+        # start the main game audio
+        AudioHandler().start_main_bgm()

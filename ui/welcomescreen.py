@@ -1,6 +1,7 @@
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.animation import Animation
+from audiohandler import AudioHandler
 from ui.levelscreen import LevelScreen
 from kivy.uix.image import Image
 
@@ -34,6 +35,7 @@ class WelcomeScreen(Screen):
         """
         Fired when the start button is clicked
         """
+        AudioHandler().click_sound()
         self.manager.init_transition(self.next_screen)
 
     def next_screen(self):
