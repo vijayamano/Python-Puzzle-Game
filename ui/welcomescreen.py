@@ -2,6 +2,7 @@ from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
 from kivy.animation import Animation
 from audiohandler import AudioHandler
+from ui.howtoplaymodal import HowToPlayModal
 from ui.levelscreen import LevelScreen
 from kivy.uix.image import Image
 
@@ -45,3 +46,10 @@ class WelcomeScreen(Screen):
         and before the second animation plays
         """
         self.manager.switch_to(LevelScreen())
+
+    def show_how_to_play(self, *args):
+        """
+        Fired when the how to play button is clicked
+        """
+        AudioHandler().click_sound()
+        HowToPlayModal().open()
