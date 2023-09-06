@@ -20,6 +20,7 @@ from kivy.uix.behaviors import ButtonBehavior
 from kivy.uix.effectwidget import EffectWidget
 from audiohandler import AudioHandler
 
+
 Builder.load_file("ui/kv/levelscreen.kv")
 Builder.load_file("ui/kv/levelcard.kv")
 Builder.load_file("ui/kv/difficulty_menu.kv")
@@ -291,11 +292,6 @@ class LevelScreen(EffectWidget, Screen):
 
         self.manager.switch_to(WelcomeScreen())
 
-    def show_settings(self):
-        """
-        This function is used to show the settings screen
-        """
-        print("showing settings")
 
     def load_levels(self):
         """ "

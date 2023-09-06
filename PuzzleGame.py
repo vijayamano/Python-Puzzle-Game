@@ -8,7 +8,7 @@ from kivy.properties import ListProperty
 from kivy.uix.screenmanager import ScreenManager
 from kivy.animation import Animation
 from functools import partial
-from kivy.modules import inspector
+from kivy.uix.settings import SettingsWithTabbedPanel
 
 Builder.load_string(
     """
@@ -94,7 +94,8 @@ class PuzzleGame(App):
         """
         self.running = True
         self.main_screen = MainScreen()
-        inspector.create_inspector(Window, self.main_screen)
+        # set the settings class
+        self.settings_cls = SettingsWithTabbedPanel
         return self.main_screen
 
     def on_start(self):
